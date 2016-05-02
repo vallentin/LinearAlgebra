@@ -5,7 +5,7 @@
 and fleshed out, then the library will be released.*
 
 
-# LinearMath
+# LinearMath [![Build Status](https://drone.io/github.com/MrVallentin/LinearMath/status.png)](https://drone.io/github.com/MrVallentin/LinearMath/latest)
 
 [LinearMath][LinearMath] is a linear algebra library, which consists of:
 
