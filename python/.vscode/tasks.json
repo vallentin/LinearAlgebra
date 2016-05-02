@@ -1,0 +1,11 @@
+{
+	"version": "0.1.0",
+	"showOutput": "always",
+	
+	"windows": {
+		"command": "python",
+		"showOutput": "always"
+	},
+	
+	"args": [ "${workspaceRoot}/test.py" ]
+}
