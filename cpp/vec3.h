@@ -4,25 +4,21 @@
 // Repository: https://github.com/MrVallentin/LinearMath
 //
 // Date Created: January 30, 2015
-// Last Modified: April 30, 2016
+// Last Modified: May 03, 2016
 
 #ifndef LM_VEC3_H
 #define LM_VEC3_H
 
 
-
 #include <math.h>
-
 
 
 #include "vec2.h"
 
 
-
 // #ifndef FEQUAL
 // #	define FEQUAL(x, y) (abs(a - b) <= 1E-6)
 // #endif
-
 
 
 #undef FEQUAL
@@ -36,7 +32,6 @@
 #define DEQUAL(x, y) ((((y) - 1E-4) < (x)) && ((x) < ((y) + 1E-4)))
 
 
-
 #ifndef vec_t
 #	ifdef scalar_t
 #		define vec_t scalar_t
@@ -46,9 +41,11 @@
 #endif
 
 
+// Disable structure padding
+#pragma pack(push, 1)
+
 
 template<typename T> class tvec3;
-
 
 
 template<typename T> using vec3_t = tvec3<T>;
@@ -68,7 +65,6 @@ typedef tvec3<unsigned long> ulvec3;
 
 typedef tvec3<signed long long> llvec3;
 typedef tvec3<unsigned long long> ullvec3;
-
 
 
 template<typename T>
@@ -558,7 +554,6 @@ public:
 };
 
 
-
 #pragma region Static Members
 
 template<typename T> const tvec3<T> tvec3<T>::zero = tvec3<T>(T(0), T(0), T(0));
@@ -574,7 +569,6 @@ template<typename T> const tvec3<T> tvec3<T>::forward = tvec3<T>(T(0), T(0), T(1
 template<typename T> const tvec3<T> tvec3<T>::backward = tvec3<T>(T(0), T(0), T(-1));
 
 #pragma endregion
-
 
 
 #pragma region Validate sizeof Templated Objects
@@ -599,6 +593,9 @@ STATIC_ASSERT(sizeof(tvec3<unsigned long long>) == (sizeof(unsigned long long) *
 
 #pragma endregion
 
+
+// Enable structure padding
+#pragma pack(pop)
 
 
 #endif

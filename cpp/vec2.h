@@ -4,21 +4,18 @@
 // Repository: https://github.com/MrVallentin/LinearMath
 //
 // Date Created: January 30, 2015
-// Last Modified: April 30, 2016
+// Last Modified: May 03, 2016
 
 #ifndef LM_VEC2_H
 #define LM_VEC2_H
 
 
-
 #include <math.h>
-
 
 
 // #ifndef FEQUAL
 // #	define FEQUAL(x, y) (abs(a - b) <= 1E-6)
 // #endif
-
 
 
 #undef FEQUAL
@@ -32,7 +29,6 @@
 #define DEQUAL(x, y) ((((y) - 1E-4) < (x)) && ((x) < ((y) + 1E-4)))
 
 
-
 #ifndef vec_t
 #	ifdef scalar_t
 #		define vec_t scalar_t
@@ -42,9 +38,11 @@
 #endif
 
 
+// Disable structure padding
+#pragma pack(push, 1)
+
 
 template<typename T> class tvec2;
-
 
 
 template<typename T> using vec2_t = tvec2 <T>;
@@ -64,7 +62,6 @@ typedef tvec2<unsigned long> ulvec2;
 
 typedef tvec2<signed long long> llvec2;
 typedef tvec2<unsigned long long> ullvec2;
-
 
 
 template<typename T>
@@ -524,7 +521,6 @@ public:
 };
 
 
-
 #pragma region Static Members
 
 template<typename T> const tvec2<T> tvec2<T>::zero = tvec2<T>(T(0), T(0));
@@ -537,7 +533,6 @@ template<typename T> const tvec2<T> tvec2<T>::left = tvec2<T>(T(-1), T(0));
 template<typename T> const tvec2<T> tvec2<T>::right = tvec2<T>(T(1), T(0));
 
 #pragma endregion
-
 
 
 #pragma region Validate sizeof Templated Objects
@@ -562,6 +557,9 @@ STATIC_ASSERT(sizeof(tvec2<unsigned long long>) == (sizeof(unsigned long long) *
 
 #pragma endregion
 
+
+// Enable structure padding
+#pragma pack(pop)
 
 
 #endif
