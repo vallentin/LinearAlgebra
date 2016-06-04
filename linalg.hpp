@@ -127,29 +127,17 @@ public:
 
 	vec2_t(void) : x(T(0)), y(T(0)) {}
 
-	// vec2_t(const vec2 &v) : x(v.x), y(v.y) {}
+	template<typename T2> vec2_t(const vec2_t<T2> &v) : x(T(v.x)), y(T(v.y)) {}
 
-	vec2_t(const vec2_t<float> &v) : x(T(v.x)), y(T(v.y)) {}
-	vec2_t(const vec2_t<double> &v) : x(T(v.x)), y(T(v.y)) {}
-	vec2_t(const vec2_t<signed int> &v) : x(T(v.x)), y(T(v.y)) {}
-	vec2_t(const vec2_t<unsigned int> &v) : x(T(v.x)), y(T(v.y)) {}
-	vec2_t(const vec2_t<bool> &v) : x(T(v.x)), y(T(v.y)) {}
+	template<typename T2> vec2_t(const T2 &xy) : x(T(xy)), y(T(xy)) {}
+	template<typename T2> vec2_t(const T2 &x, const T2 &y) : x(T(x)), y(T(y)) {}
 
-	vec2_t(const vec2_t<signed long> &v) : x(T(v.x)), y(T(v.y)) {}
-	vec2_t(const vec2_t<unsigned long> &v) : x(T(v.x)), y(T(v.y)) {}
-	vec2_t(const vec2_t<signed long long> &v) : x(T(v.x)), y(T(v.y)) {}
-	vec2_t(const vec2_t<unsigned long long> &v) : x(T(v.x)), y(T(v.y)) {}
-
-	vec2_t(const T &xy) : x(xy), y(xy) {}
-	vec2_t(const T &x, const T &y) : x(x), y(y) {}
-	vec2_t(const T *xy) : x(xy[0]), y(xy[1]) {}
+	template<typename T2> vec2_t(const T2 *xy) : x(T(xy[0])), y(T(xy[1])) {}
 
 	~vec2_t(void) {}
 
 
 #pragma region Operator Overloading
-
-	// http://en.cppreference.com/w/cpp/language/operators
 
 #pragma region Member Access Operators
 
@@ -591,26 +579,15 @@ public:
 
 	vec3_t(void) : x(T(0)), y(T(0)), z(T(0)) {}
 
-	// vec3_t(const vec3 &v) : x(v.x), y(v.y), z(v.z) {}
+	template<typename T2> vec3_t(const vec3_t<T2> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
 
-	vec3_t(const vec3_t<float> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
-	vec3_t(const vec3_t<double> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
-	vec3_t(const vec3_t<signed int> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
-	vec3_t(const vec3_t<unsigned int> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
-	vec3_t(const vec3_t<bool> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
+	template<typename T2> vec3_t(const T2 &xyz) : x(T(xyz)), y(T(xyz)), z(T(xyz)) {}
+	template<typename T2> vec3_t(const T2 &x, const T2 &y, const T2 &z = T(0)) : x(T(x)), y(T(y)), z(T(z)) {}
 
-	vec3_t(const vec3_t<signed long> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
-	vec3_t(const vec3_t<unsigned long> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
-	vec3_t(const vec3_t<signed long long> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
-	vec3_t(const vec3_t<unsigned long long> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
+	template<typename T2> vec3_t(const T2 *xyz) : x(T(xyz[0])), y(T(xyz[1])), z(T(xyz[2])) {}
 
-	vec3_t(const T &xyz) : x(xyz), y(xyz), z(xyz) {}
-	vec3_t(const T &x, const T &y, const T &z) : x(x), y(y), z(z) {}
-	vec3_t(const T *xyz) : x(xyz[0]), y(xyz[1]), z(xyz[2]) {}
-
-	vec3_t(const vec2 &xy) : x(xy.x), y(xy.y), z(T(0)) {}
-	vec3_t(const vec2 &xy, const T &z) : x(xy.x), y(xy.y), z(z) {}
-	vec3_t(const T &x, const vec2 &yz) : x(x), y(yz.x), z(yz.y) {}
+	template<typename T2, typename T3> vec3_t(const vec2_t<T2> &xy, const T3 &z = T3(0)) : x(T(xy.x)), y(T(xy.y)), z(T(z)) {}
+	template<typename T2, typename T3> vec3_t(const T2 &x, const vec2_t<T3> &yz) : x(T(x)), y(T(yz.x)), z(T(yz.y)) {}
 
 	~vec3_t(void) {}
 
@@ -1050,31 +1027,15 @@ public:
 
 	vec4_t(void) : x(T(0)), y(T(0)), z(T(0)), w(T(0)) {}
 
-	// vec4_t(const vec4 &v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
+	template<typename T2> vec4_t(const vec4_t<T2> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
 
-	vec4_t(const vec4_t<float> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
-	vec4_t(const vec4_t<double> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
-	vec4_t(const vec4_t<signed int> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
-	vec4_t(const vec4_t<unsigned int> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
-	vec4_t(const vec4_t<bool> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
+	template<typename T2> vec4_t(const T2 &xyzw) : x(T(xyzw)), y(T(xyzw)), z(T(xyzw)), w(T(xyzw)) {}
+	template<typename T2> vec4_t(const T2 &x, const T2 &y, const T2 &z, const T2 &w) : x(T(x)), y(T(y)), z(T(z)), w(T(w)) {}
 
-	vec4_t(const vec4_t<signed long> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
-	vec4_t(const vec4_t<unsigned long> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
-	vec4_t(const vec4_t<signed long long> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
-	vec4_t(const vec4_t<unsigned long long> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
+	template<typename T2> vec4_t(const T2 *xyzw) : x(T(xyzw[0])), y(T(xyzw[0])), z(T(xyzw[0])), w(T(xyzw[0])) {}
 
-	vec4_t(const T &xyzw) : x(xyzw), y(xyzw), z(xyzw), w(xyzw) {}
-	vec4_t(const T &x, const T &y, const T &z, const T &w) : x(x), y(y), z(z), w(w) {}
-	vec4_t(const T *xyzw) : x(xyzw[0]), y(xyzw[1]), z(xyzw[2]), w(xyzw[3]) {}
-
-	vec4_t(const vec2 &xy) : x(xy.x), y(xy.y), z(T(0)), w(T(0)) {}
-	vec4_t(const vec2 &xy, const T &z, const T &w) : x(xy.x), y(xy.y), z(z), w(w) {}
-	vec4_t(const T &x, const T &y, const vec2 &zw) : x(x), y(y), z(zw.x), w(zw.y) {}
-	vec4_t(const vec2 &xy, const vec2 &zw) : x(xy.x), y(xy.y), z(zw.x), w(zw.y) {}
-
-	vec4_t(const vec3 &xyz) : x(xyz.x), y(xyz.y), z(xyz.z), w(T(0)) {}
-	vec4_t(const vec3 &xyz, const T &w) : x(xyz.x), y(xyz.y), z(xyz.z), w(w) {}
-	vec4_t(const T &x, const vec3 &yzw) : x(x), y(yzw.x), z(yzw.y), w(yzw.z) {}
+	template<typename T2, typename T3> vec4_t(const vec3_t<T2> &xyz, const T3 &w = T3(0)) : x(T(xyz.x)), y(T(xyz.y)), z(T(xyz.z)), w(T(w)) {}
+	template<typename T2, typename T3> vec4_t(const T2 &x, const vec3_t<T3> &yzw) : x(T(x)), y(T(yzw.x)), z(T(yzw.y)), w(T(yzw.z)) {}
 
 	~vec4_t(void) {}
 
