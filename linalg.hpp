@@ -4,7 +4,7 @@
 // Repository: https://github.com/MrVallentin/LinearAlgebra
 //
 // Date Created: October 01, 2013
-// Last Modified: June 04, 2016
+// Last Modified: June 05, 2016
 
 #ifndef LINEAR_ALGEBRA_HPP
 #define LINEAR_ALGEBRA_HPP
@@ -25,6 +25,8 @@
 template<typename T> class vec2_t;
 template<typename T> class vec3_t;
 template<typename T> class vec4_t;
+
+template<typename T> class mat2_t;
 
 
 typedef vec2_t<LINALG_DEFAULT_SCALAR> vec2;
@@ -76,6 +78,19 @@ typedef vec4_t<unsigned long> ulvec4;
 
 typedef vec4_t<signed long long> llvec4;
 typedef vec4_t<unsigned long long> ullvec4;
+
+
+typedef mat2_t<LINALG_DEFAULT_SCALAR> mat2;
+
+typedef mat2_t<float> fmat2;
+typedef mat2_t<double> dmat2;
+
+template<typename T> using mat2x2_t = mat2_t<T>;
+
+typedef mat2x2_t<LINALG_DEFAULT_SCALAR> mat2x2;
+
+typedef mat2x2_t<float> fmat2x2;
+typedef mat2x2_t<double> dmat2x2;
 
 
 #if defined(_DEBUG) && !defined(DEBUG)
@@ -141,9 +156,9 @@ public:
 
 #pragma region Member Access Operators
 
-	inline T& operator[](const int offset) { return (reinterpret_cast<T*>(this))[offset]; }
-	// inline T operator[](const int offset) const { return (reinterpret_cast<T*>(this))[offset]; }
-	inline T operator[](const int offset) const { return ((T*) this)[offset]; }
+	inline T& operator[](const int index) { return (reinterpret_cast<T*>(this))[index]; }
+	// inline T operator[](const int index) const { return (reinterpret_cast<T*>(this))[index]; }
+	inline T operator[](const int index) const { return ((T*) this)[index]; }
 
 #pragma endregion
 
@@ -594,13 +609,11 @@ public:
 
 #pragma region Operator Overloading
 
-	// http://en.cppreference.com/w/cpp/language/operators
-
 #pragma region Member Access Operators
 
-	inline T& operator[](const int offset) { return (reinterpret_cast<T*>(this))[offset]; }
-	// inline T operator[](const int offset) const { return (reinterpret_cast<T*>(this))[offset]; }
-	inline T operator[](const int offset) const { return ((T*) this)[offset]; }
+	inline T& operator[](const int index) { return (reinterpret_cast<T*>(this))[index]; }
+	// inline T operator[](const int index) const { return (reinterpret_cast<T*>(this))[index]; }
+	inline T operator[](const int index) const { return ((T*) this)[index]; }
 
 #pragma endregion
 
@@ -1042,13 +1055,11 @@ public:
 
 #pragma region Operator Overloading
 
-	// http://en.cppreference.com/w/cpp/language/operators
-
 #pragma region Member Access Operators
 
-	inline T& operator[](const int offset) { return (reinterpret_cast<T*>(this))[offset]; }
-	// inline T operator[](const int offset) const { return (reinterpret_cast<T*>(this))[offset]; }
-	inline T operator[](const int offset) const { return ((T*) this)[offset]; }
+	inline T& operator[](const int index) { return (reinterpret_cast<T*>(this))[index]; }
+	// inline T operator[](const int index) const { return (reinterpret_cast<T*>(this))[index]; }
+	inline T operator[](const int index) const { return ((T*) this)[index]; }
 
 #pragma endregion
 
@@ -1428,9 +1439,261 @@ public:
 };
 
 
+template<typename T>
+class mat2_t
+{
+private:
+
+	typedef vec2_t<T> vec2;
+
+	typedef mat2_t<T> mat2;
+
+
+public:
+
+	static const mat2_t<T> zero;
+	static const mat2_t<T> identity;
+
+
+public:
+
+	vec2 columns[2];
+
+
+public:
+
+	mat2_t(const T mainDiagonalValue = T(1))
+	{
+		this->columns[0] = vec2(mainDiagonalValue, T(0));
+		this->columns[1] = vec2(T(0), mainDiagonalValue);
+	}
+
+	mat2_t(
+		const vec2 &column1, // first column
+		const vec2 &column2) // second column
+	{
+		this->columns[0] = column1;
+		this->columns[1] = column2;
+	}
+
+	mat2_t(const vec2 columns[2])
+	{
+		this->columns[0] = column1;
+		this->columns[1] = column2;
+	}
+
+	mat2_t(const T values[2 * 2])
+	{
+		for (int i = 0; i < 2 * 2; i++)
+			(reinterpret_cast<T*>(this))[i] = values[i];
+	}
+
+	mat2_t(
+		const T a, const T b,
+		const T c, const T d)
+	{
+		(*this) = mat2(
+			vec2(a, b),
+			vec2(c, d)
+		);
+	}
+
+	~mat2_t(void) {}
+
+
+#pragma region Operator Overloading
+
+#pragma region Member Access Operators
+
+	inline vec2& operator[](const int index) { return (reinterpret_cast<vec2*>(this))[index]; }
+	inline vec2 operator[](const int index) const { return ((vec2*) this)[index]; }
+
+#pragma endregion
+
+#pragma region Arithmetic Operators
+
+	mat2 operator+(const mat2 &rhs) const
+	{
+		mat2 result;
+
+		for (int i = 0; i < 2; i++)
+			result[i] = (*this)[i] + rhs[i];
+
+		return result;
+	}
+
+	mat2 operator-(const mat2 &rhs) const
+	{
+		mat2 result;
+
+		for (int i = 0; i < 2; i++)
+			result[i] = (*this)[i] - rhs[i];
+
+		return result;
+	}
+
+	mat2 operator*(const mat2 &rhs) const
+	{
+		mat2 result;
+
+		for (int i = 0; i < 2; i++)
+			for (int j = 0; j < 2; j++)
+				result[i][j] = this->row(i).dot(rhs.col(j));
+
+		return result;
+	}
+
+	vec2 operator*(const vec2 &rhs) const
+	{
+		return vec2(
+			(rhs.x * (*this)[0].x) + (rhs.y * (*this)[1].x),
+			(rhs.x * (*this)[0].y) + (rhs.y * (*this)[1].y)
+		);
+	}
+
+	friend vec2 operator*(const vec2 &lhs, const mat2 &rhs)
+	{
+		return vec2(
+			lhs.dot(rhs[0]),
+			lhs.dot(rhs[1])
+		);
+	}
+
+	mat2 operator*(const T &rhs) const
+	{
+		mat2 result;
+
+		for (int i = 0; i < 2; i++)
+			result[i] = (*this)[i] * rhs;
+
+		return result;
+	}
+	friend inline mat2 operator*(const T &lhs, const mat2 &rhs) { return (rhs * lhs); }
+
+	mat2 operator/(const T &rhs) const
+	{
+		mat2 result;
+
+		for (int i = 0; i < 2; i++)
+			result[i] = (*this)[i] / rhs;
+
+		return result;
+	}
+
+#pragma endregion
+#pragma region Assignment Operators
+
+	mat2& operator+=(const mat2 &rhs) { return ((*this) = (*this) + rhs); }
+	mat2& operator-=(const mat2 &rhs) { return ((*this) = (*this) - rhs); }
+	mat2& operator*=(const mat2 &rhs) { return ((*this) = (*this) * rhs); }
+	mat2& operator*=(const T rhs) { return ((*this) = (*this) * rhs); }
+	mat2& operator/=(const T rhs) { return ((*this) = (*this) / rhs); }
+
+	inline mat2& operator=(const mat2 &rhs)
+	{
+		for (int i = 0; i < 2; i++)
+			this->columns[i] = rhs[i];
+
+		return (*this);
+	}
+
+#pragma endregion
+
+#pragma region Comparison Operators
+	
+	bool operator==(const mat2 &rhs) const;
+
+	inline bool operator!=(const mat2 &rhs) const { return !((*this) == rhs); }
+
+#pragma endregion
+
+#pragma region Cast Operators
+
+	explicit inline operator T*(void) const { return reinterpret_cast<T*>(this); }
+
+	inline operator mat2_t<float>(void) const { return mat2_t<float>(static_cast<vec2_t<float>>(this->columns[0]), static_cast<vec2_t<float>>(this->columns[1])); }
+	inline operator mat2_t<double>(void) const { return mat2_t<double>(static_cast<vec2_t<double>>(this->columns[0]), static_cast<vec2_t<double>>(this->columns[1])); }
+
+#pragma endregion
+
+#pragma region Stream Operators
+
+#ifdef _IOSTREAM_
+
+	friend inline std::ostream& operator<<(std::ostream &stream, const mat2 &rhs)
+	{
+		// return (stream << "mat2 (" << rhs[0] << "," << std::endl
+		// 			   << "      " << rhs[1] << ")");
+
+		return (stream << "mat2 {" << rhs[0] << "," << std::endl
+					   << "      " << rhs[1] << "}");
+	}
+
+	friend inline std::wostream& operator<<(std::wostream &stream, const mat2 &rhs)
+	{
+		// return (stream << L"mat2 (" << rhs[0] << L"," << std::endl
+		// 			   << L"      " << rhs[1] << L")");
+
+		return (stream << L"mat2 {" << rhs[0] << L"," << std::endl
+					   << L"      " << rhs[1] << L"}");
+	}
+
+#endif
+
+#pragma endregion
+
+#pragma endregion
+
+
+	T determinant(void) const
+	{
+		return ((*this)[0][0] * (*this)[1][1]) - ((*this)[1][0] * (*this)[0][1]);
+	}
+	friend inline T determinant(const mat2 &m) { return mat2(m).determinant(); }
+
+
+	mat2& inverse(void)
+	{
+		const T d = T(1) / this->determinant();
+
+		return ((*this) = (d * mat2(
+			(*this)[1][1], -(*this)[0][1],
+			-(*this)[1][0], (*this)[0][0]
+		)));
+	}
+	friend inline mat2 inverse(const mat2 &m) { return mat2(m).inverse(); }
+
+
+	mat2& transpose(void)
+	{
+		return ((*this) = mat2(
+			vec2((*this)[0].x, (*this)[1].x),
+			vec2((*this)[0].y, (*this)[1].y)
+		));
+	}
+	friend inline mat2 transpose(const mat2 &m) { return mat2(m).transpose(); }
+
+
+	inline vec2 col(const int index) const
+	{
+		return (*this)[index];
+	}
+
+	inline vec2 row(const int index) const
+	{
+		return vec2(
+			(*this)[0][index],
+			(*this)[1][index]
+		);
+	}
+};
+
+
 // It isn't an optimal solution, to inline all template functions that has explicit specialization.
 // But it is needed if we don't want to run into "multiple definitions" compilation error.
 
+
+#pragma region vec2
 
 #pragma region Static Members
 
@@ -1634,6 +1897,10 @@ STATIC_ASSERT(sizeof(vec2_t<unsigned long long>) == (sizeof(unsigned long long) 
 
 #pragma endregion
 
+#pragma endregion
+
+
+#pragma region vec3
 
 #pragma region Static Members
 
@@ -1840,7 +2107,10 @@ STATIC_ASSERT(sizeof(vec3_t<unsigned long long>) == (sizeof(unsigned long long) 
 
 #pragma endregion
 
+#pragma endregion
 
+
+#pragma region vec4
 
 #pragma region Static Members
 
@@ -2035,6 +2305,51 @@ STATIC_ASSERT(sizeof(vec4_t<signed long long>) == (sizeof(signed long long) * 4)
 STATIC_ASSERT(sizeof(vec4_t<unsigned long long>) == (sizeof(unsigned long long) * 4));
 
 #endif
+
+#pragma endregion
+
+#pragma endregion
+
+
+#pragma region mat2
+
+#pragma region Static Members
+
+template<typename T> const mat2_t<T> mat2_t<T>::zero = mat2_t<T>(T(0));
+template<typename T> const mat2_t<T> mat2_t<T>::identity = mat2_t<T>(T(1));
+
+#pragma endregion
+
+#pragma region Comparison Operators
+
+template<typename T> inline bool mat2_t<T>::operator==(const mat2_t &rhs) const
+{
+	for (int i = 0; i < 2; i++)
+		if ((*this)[i] != rhs[i])
+			return false;
+
+	return true;
+}
+
+template<> inline bool mat2_t<float>::operator==(const mat2_t<float> &rhs) const
+{
+	for (int i = 0; i < 2; i++)
+		if (!LINALG_FEQUAL((*this)[i], rhs[i]))
+			return false;
+
+	return true;
+}
+
+template<> inline bool mat2_t<double>::operator==(const mat2_t<double> &rhs) const
+{
+	for (int i = 0; i < 2; i++)
+		if (!LINALG_DEQUAL((*this)[i], rhs[i]))
+			return false;
+
+	return true;
+}
+
+#pragma endregion
 
 #pragma endregion
 
