@@ -4,7 +4,7 @@
 // Repository: https://github.com/MrVallentin/LinearAlgebra
 //
 // Date Created: October 01, 2013
-// Last Modified: June 05, 2016
+// Last Modified: June 06, 2016
 
 #ifndef LINEAR_ALGEBRA_HPP
 #define LINEAR_ALGEBRA_HPP
@@ -27,6 +27,7 @@ template<typename T> class vec3_t;
 template<typename T> class vec4_t;
 
 template<typename T> class mat2_t;
+template<typename T> class mat3_t;
 
 
 typedef vec2_t<LINALG_DEFAULT_SCALAR> vec2;
@@ -91,6 +92,19 @@ typedef mat2x2_t<LINALG_DEFAULT_SCALAR> mat2x2;
 
 typedef mat2x2_t<float> fmat2x2;
 typedef mat2x2_t<double> dmat2x2;
+
+
+typedef mat3_t<LINALG_DEFAULT_SCALAR> mat3;
+
+typedef mat3_t<float> fmat3;
+typedef mat3_t<double> dmat3;
+
+template<typename T> using mat3x3_t = mat3_t<T>;
+
+typedef mat3x3_t<LINALG_DEFAULT_SCALAR> mat3x3;
+
+typedef mat3x3_t<float> fmat3x3;
+typedef mat3x3_t<double> dmat3x3;
 
 
 #if defined(_DEBUG) && !defined(DEBUG)
@@ -1589,7 +1603,7 @@ public:
 	mat2& operator*=(const T rhs) { return ((*this) = (*this) * rhs); }
 	mat2& operator/=(const T rhs) { return ((*this) = (*this) / rhs); }
 
-	inline mat2& operator=(const mat2 &rhs)
+	mat2& operator=(const mat2 &rhs)
 	{
 		for (int i = 0; i < 2; i++)
 			this->columns[i] = rhs[i];
@@ -1684,6 +1698,275 @@ public:
 		return vec2(
 			(*this)[0][index],
 			(*this)[1][index]
+		);
+	}
+};
+
+
+template<typename T>
+class mat3_t
+{
+private:
+
+	typedef vec2_t<T> vec2;
+	typedef vec3_t<T> vec3;
+
+	typedef mat2_t<T> mat2;
+	typedef mat3_t<T> mat3;
+
+
+public:
+
+	static const mat3_t<T> zero;
+	static const mat3_t<T> identity;
+
+
+public:
+
+	vec3 columns[3];
+
+
+public:
+
+	mat3_t(const T mainDiagonalValue = T(1))
+	{
+		this->columns[0] = vec3(mainDiagonalValue, T(0), T(0));
+		this->columns[1] = vec3(T(0), mainDiagonalValue, T(0));
+		this->columns[2] = vec3(T(0), T(0), mainDiagonalValue);
+	}
+
+	mat3_t(
+		const vec3 &column1, // first column
+		const vec3 &column2, // second column
+		const vec3 &column3) // third column
+	{
+		this->columns[0] = column1;
+		this->columns[1] = column2;
+		this->columns[2] = column3;
+	}
+
+	mat3_t(const vec3 columns[3])
+	{
+		this->columns[0] = column1;
+		this->columns[1] = column2;
+		this->columns[2] = column3;
+	}
+
+	mat3_t(const T values[3 * 3])
+	{
+		for (int i = 0; i < 3 * 3; i++)
+			(reinterpret_cast<T*>(this))[i] = values[i];
+	}
+
+	mat3_t(
+		const T a, const T b, const T c,
+		const T d, const T e, const T f,
+		const T g, const T h, const T i)
+	{
+		(*this) = mat3(
+			vec3(a, b, c),
+			vec3(d, e, f),
+			vec3(g, h, i)
+		);
+	}
+
+	~mat3_t(void) {}
+
+
+#pragma region Operator Overloading
+
+#pragma region Member Access Operators
+
+	inline vec3& operator[](const int index) { return (reinterpret_cast<vec3*>(this))[index]; }
+	inline vec3 operator[](const int index) const { return ((vec3*) this)[index]; }
+
+#pragma endregion
+
+#pragma region Arithmetic Operators
+
+	mat3 operator+(const mat3 &rhs) const
+	{
+		mat3 result;
+
+		for (int i = 0; i < 3; i++)
+			result[i] = (*this)[i] + rhs[i];
+
+		return result;
+	}
+
+	mat3 operator-(const mat3 &rhs) const
+	{
+		mat3 result;
+
+		for (int i = 0; i < 3; i++)
+			result[i] = (*this)[i] - rhs[i];
+
+		return result;
+	}
+
+	mat3 operator*(const mat3 &rhs) const
+	{
+		mat3 result;
+
+		for (int i = 0; i < 3; i++)
+			for (int j = 0; j < 3; j++)
+				result[i][j] = this->row(i).dot(rhs.col(j));
+
+		return result;
+	}
+
+	vec3 operator*(const vec3 &rhs) const
+	{
+		return vec3(
+			(rhs.x * (*this)[0].x) + (rhs.y * (*this)[1].x) + (rhs.z * (*this)[2].x),
+			(rhs.x * (*this)[0].y) + (rhs.y * (*this)[1].y) + (rhs.z * (*this)[2].y),
+			(rhs.x * (*this)[0].z) + (rhs.y * (*this)[1].z) + (rhs.z * (*this)[2].z)
+		);
+	}
+
+	friend vec3 operator*(const vec3 &lhs, const mat3 &rhs)
+	{
+		return vec3(
+			lhs.dot(rhs[0]),
+			lhs.dot(rhs[1]),
+			lhs.dot(rhs[2])
+		);
+	}
+
+	mat3 operator*(const T &rhs) const
+	{
+		mat3 result;
+
+		for (int i = 0; i < 3; i++)
+			result[i] = (*this)[i] * rhs;
+
+		return result;
+	}
+	friend inline mat3 operator*(const T &lhs, const mat3 &rhs) { return (rhs * lhs); }
+
+	mat3 operator/(const T &rhs) const
+	{
+		mat3 result;
+
+		for (int i = 0; i < 3; i++)
+			result[i] = (*this)[i] / rhs;
+
+		return result;
+	}
+
+#pragma endregion
+#pragma region Assignment Operators
+
+	mat3& operator+=(const mat3 &rhs) { return ((*this) = (*this) + rhs); }
+	mat3& operator-=(const mat3 &rhs) { return ((*this) = (*this) - rhs); }
+	mat3& operator*=(const mat3 &rhs) { return ((*this) = (*this) * rhs); }
+	mat3& operator*=(const T rhs) { return ((*this) = (*this) * rhs); }
+	mat3& operator/=(const T rhs) { return ((*this) = (*this) / rhs); }
+
+	mat3& operator=(const mat3 &rhs)
+	{
+		for (int i = 0; i < 3; i++)
+			this->columns[i] = rhs[i];
+
+		return (*this);
+	}
+
+#pragma endregion
+
+#pragma region Comparison Operators
+
+	bool operator==(const mat3 &rhs) const;
+
+	inline bool operator!=(const mat3 &rhs) const { return !((*this) == rhs); }
+
+#pragma endregion
+
+#pragma region Cast Operators
+
+	explicit inline operator T*(void) const { return reinterpret_cast<T*>(this); }
+
+	inline operator mat3_t<float>(void) const { return mat3_t<float>(static_cast<vec3_t<float>>(this->columns[0]), static_cast<vec3_t<float>>(this->columns[1]), static_cast<vec3_t<float>>(this->columns[2])); }
+	inline operator mat3_t<double>(void) const { return mat3_t<double>(static_cast<vec3_t<double>>(this->columns[0]), static_cast<vec3_t<double>>(this->columns[1]), static_cast<vec3_t<double>>(this->columns[2])); }
+
+#pragma endregion
+
+#pragma region Stream Operators
+
+#ifdef _IOSTREAM_
+
+	friend inline std::ostream& operator<<(std::ostream &stream, const mat3 &rhs)
+	{
+		return (stream << "mat3 {" << rhs[0] << "," << std::endl
+					   << "      " << rhs[1] << "," << std::endl
+					   << "      " << rhs[2] << "}");
+	}
+
+	friend inline std::wostream& operator<<(std::wostream &stream, const mat3 &rhs)
+	{
+		return (stream << L"mat3 {" << rhs[0] << L"," << std::endl
+					   << L"      " << rhs[1] << L"," << std::endl
+					   << L"      " << rhs[2] << L"}");
+	}
+
+#endif
+
+#pragma endregion
+
+#pragma endregion
+
+
+	T determinant(void) const
+	{
+		return (*this)[0][0] * ((*this)[1][1] * (*this)[2][2]) - ((*this)[2][1] * (*this)[1][2])
+			- (*this)[1][0] * ((*this)[0][1] * (*this)[2][2]) - ((*this)[2][1] * (*this)[0][2])
+			+ (*this)[2][0] * ((*this)[0][1] * (*this)[1][2]) - ((*this)[1][1] * (*this)[0][2]);
+	}
+	friend inline T determinant(const mat3 &m) { return mat3(m).determinant(); }
+
+
+	mat3& inverse(void)
+	{
+		const T d = T(1) / this->determinant();
+
+		return ((*this) = (d * mat3(
+			((*this)[2][2] * (*this)[1][1]) - ((*this)[1][2] * (*this)[2][1]),
+			((*this)[1][2] * (*this)[2][0]) - ((*this)[2][2] * (*this)[1][0]),
+			((*this)[2][1] * (*this)[1][0]) - ((*this)[1][1] * (*this)[2][0]),
+
+			((*this)[0][2] * (*this)[2][1]) - ((*this)[2][2] * (*this)[0][1]),
+			((*this)[2][2] * (*this)[0][0]) - ((*this)[0][2] * (*this)[2][0]),
+			((*this)[0][1] * (*this)[2][0]) - ((*this)[2][1] * (*this)[0][0]),
+
+			((*this)[1][2] * (*this)[0][1]) - ((*this)[0][2] * (*this)[1][1]),
+			((*this)[0][2] * (*this)[1][0]) - ((*this)[1][2] * (*this)[0][0]),
+			((*this)[1][1] * (*this)[0][0]) - ((*this)[0][1] * (*this)[1][0])
+		)));
+	}
+	friend inline mat3 inverse(const mat3 &m) { return mat3(m).inverse(); }
+
+
+	mat3& transpose(void)
+	{
+		return ((*this) = mat3(
+			vec3((*this)[0].x, (*this)[1].x, (*this)[2].x),
+			vec3((*this)[0].y, (*this)[1].y, (*this)[2].y),
+			vec3((*this)[0].z, (*this)[1].z, (*this)[2].z)
+		));
+	}
+	friend inline mat3 transpose(const mat3 &m) { return mat3(m).transpose(); }
+
+
+	inline vec3 col(const int index) const
+	{
+		return (*this)[index];
+	}
+
+	inline vec3 row(const int index) const
+	{
+		return vec3(
+			(*this)[0][index],
+			(*this)[1][index],
+			(*this)[2][index]
 		);
 	}
 };
@@ -2343,6 +2626,49 @@ template<> inline bool mat2_t<float>::operator==(const mat2_t<float> &rhs) const
 template<> inline bool mat2_t<double>::operator==(const mat2_t<double> &rhs) const
 {
 	for (int i = 0; i < 2; i++)
+		if (!LINALG_DEQUAL((*this)[i], rhs[i]))
+			return false;
+
+	return true;
+}
+
+#pragma endregion
+
+#pragma endregion
+
+
+#pragma region mat3
+
+#pragma region Static Members
+
+template<typename T> const mat3_t<T> mat3_t<T>::zero = mat3_t<T>(T(0));
+template<typename T> const mat3_t<T> mat3_t<T>::identity = mat3_t<T>(T(1));
+
+#pragma endregion
+
+#pragma region Comparison Operators
+
+template<typename T> inline bool mat3_t<T>::operator==(const mat3_t &rhs) const
+{
+	for (int i = 0; i < 3; i++)
+		if ((*this)[i] != rhs[i])
+			return false;
+
+	return true;
+}
+
+template<> inline bool mat3_t<float>::operator==(const mat3_t<float> &rhs) const
+{
+	for (int i = 0; i < 3; i++)
+		if (!LINALG_FEQUAL((*this)[i], rhs[i]))
+			return false;
+
+	return true;
+}
+
+template<> inline bool mat3_t<double>::operator==(const mat3_t<double> &rhs) const
+{
+	for (int i = 0; i < 3; i++)
 		if (!LINALG_DEQUAL((*this)[i], rhs[i]))
 			return false;
 
