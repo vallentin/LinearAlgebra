@@ -5,9 +5,9 @@
 and fleshed out, then the library will be released.*
 
 
-# LinearMath [![Build Status](https://drone.io/github.com/MrVallentin/LinearMath/status.png)](https://drone.io/github.com/MrVallentin/LinearMath/latest)
+# LinearAlgebra
 
-[LinearMath][LinearMath] is a linear algebra library, which consists of:
+[LinearAlgebra][LinearAlgebra] is a linear algebra library, which consists of:
 
 - Vectors
  - Vector 2D (`vec2`)
@@ -15,37 +15,52 @@ and fleshed out, then the library will be released.*
  - Vector 4D (`vec4`)
 
 - Matrices
+ - Matrix 2D (`mat2`, `mat2x2`)
  - Matrix 3D (`mat3`, `mat3x3`)
  - Matrix 4D (`mat4`, `mat4x4`)
 
 - Quaternion (`quat`)
 - Dual Quaternion (`dualquat`)
 
-Since [LinearMath][LinearMath] was built for use with computer graphics, it contains
+
+Since [LinearAlgebra][LinearAlgebra] was built for use with computer graphics, it contains
 a few helper classes for especially that:
 
 - Transform
 - Project
 - MatrixStack
 
-*[LinearMath][LinearMath] was first created in 2013 for use with OpenGL in Java. Later
-it was remade for C++ and Python, where the C++ version now is the main version.*
+
+Various methods are implemented such that they can be called by your liking:
+
+```cpp
+vec3 a(1.0f, 2.0f, 3.0f);
+vec3 b(4.0f, 5.0f, 6.0f);
+
+float dotProduct = a.dot(b);
+// vs
+float dotProduct = dot(a, b);
+```
+
+
+*[LinearAlgebra][LinearAlgebra] was first created in 2013 for use with OpenGL in Java. Later
+it was rewritten for C++ and Python, where the C++ version now is the main version.*
 
 
 ### License
 
 This module is shared under the MIT license, and is therefore free to use, share, distribute and modify.
-See [LICENSE][LinearMathLicense] for more details.
+See [LICENSE][LinearAlgebraLicense] for more details.
 
 
-[LinearMath]: https://github.com/MrVallentin/LinearMath
+[LinearAlgebra]: https://github.com/MrVallentin/LinearAlgebra
 
-[LinearMathIssueTracker]: https://github.com/MrVallentin/LinearMath/issues
-[LinearMathLicense]: https://github.com/MrVallentin/LinearMath/blob/master/LICENSE
+[LinearAlgebraIssueTracker]: https://github.com/MrVallentin/LinearAlgebra/issues
+[LinearAlgebraLicense]: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 
-[LinearAlgebra]: https://en.wikipedia.org/wiki/Linear_algebra
-[LinearMap]: https://en.wikipedia.org/wiki/Linear_map
+[LinearAlgebraWiki]: https://en.wikipedia.org/wiki/Linear_algebra
+[LinearMapWiki]: https://en.wikipedia.org/wiki/Linear_map
 
-[LinearInterpolation]: https://en.wikipedia.org/wiki/Linear_interpolation
+[LinearInterpolationWiki]: https://en.wikipedia.org/wiki/Linear_interpolation
 
 [GLSL]: https://www.opengl.org/documentation/glsl/
