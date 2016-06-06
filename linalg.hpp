@@ -28,6 +28,7 @@ template<typename T> class vec4_t;
 
 template<typename T> class mat2_t;
 template<typename T> class mat3_t;
+template<typename T> class mat4_t;
 
 
 typedef vec2_t<LINALG_DEFAULT_SCALAR> vec2;
@@ -107,17 +108,45 @@ typedef mat3x3_t<float> fmat3x3;
 typedef mat3x3_t<double> dmat3x3;
 
 
+typedef mat4_t<LINALG_DEFAULT_SCALAR> mat4;
+
+typedef mat4_t<float> fmat4;
+typedef mat4_t<double> dmat4;
+
+template<typename T> using mat4x4_t = mat4_t<T>;
+
+typedef mat4x4_t<LINALG_DEFAULT_SCALAR> mat4x4;
+
+typedef mat4x4_t<float> fmat4x4;
+typedef mat4x4_t<double> dmat4x4;
+
+
 #if defined(_DEBUG) && !defined(DEBUG)
 #	define DEBUG 1
 #endif
 
 
-// #define LINALG_FEQUAL(x, y) ((((y) - 1E-6f) < (x)) && ((x) < ((y) + 1E-6f)))
-// #define LINALG_DEQUAL(x, y) ((((y) - 1E-6) < (x)) && ((x) < ((y) + 1E-6)))
+// This was changed from 1E-6 to 1E-4, as asserting rotate(90deg) didn't match.
+#define LINALG_EPSILON 1E-4f
 
-// This was changed from 1E-6 to 1E-4 as asserting rotate(90deg) didn't match
-#define LINALG_FEQUAL(x, y) ((((y) - 1E-4f) < (x)) && ((x) < ((y) + 1E-4f)))
-#define LINALG_DEQUAL(x, y) ((((y) - 1E-4) < (x)) && ((x) < ((y) + 1E-4)))
+#define LINALG_FEQUAL(x, y) ((((y) - LINALG_EPSILON) < (x)) && ((x) < ((y) + LINALG_EPSILON)))
+#define LINALG_DEQUAL(x, y) ((((y) - LINALG_EPSILON) < (x)) && ((x) < ((y) + LINALG_EPSILON)))
+
+#define LINALG_PI 3.1415926535897932
+
+#define LINALG_DEG2RAD (LINALG_PI / 180.0)
+#define LINALG_RAD2DEG (180.0 / LINALG_DPI)
+
+
+// These annoyingly named Windows macros are interfering with the related vector methods!
+
+#ifdef min
+#	undef min
+#endif
+
+#ifdef max
+#	undef max
+#endif
 
 
 template<typename T>
@@ -1972,6 +2001,692 @@ public:
 };
 
 
+template<typename T>
+class mat4_t
+{
+private:
+
+	typedef vec2_t<T> vec2;
+	typedef vec3_t<T> vec3;
+	typedef vec4_t<T> vec4;
+
+	typedef mat2_t<T> mat2;
+	typedef mat3_t<T> mat3;
+	typedef mat4_t<T> mat4;
+
+
+public:
+
+	static const mat4_t<T> zero;
+	static const mat4_t<T> identity;
+
+
+public:
+
+	vec4 columns[4];
+
+
+public:
+
+	mat4_t(const T mainDiagonalValue = T(1))
+	{
+		this->columns[0] = vec4(mainDiagonalValue, T(0), T(0), T(0));
+		this->columns[1] = vec4(T(0), mainDiagonalValue, T(0), T(0));
+		this->columns[2] = vec4(T(0), T(0), mainDiagonalValue, T(0));
+		this->columns[3] = vec4(T(0), T(0), T(0), mainDiagonalValue);
+	}
+
+	mat4_t(
+		const vec4 &column1, // first column
+		const vec4 &column2, // second column
+		const vec4 &column3, // third column
+		const vec4 &column4) // fourth column
+	{
+		this->columns[0] = column1;
+		this->columns[1] = column2;
+		this->columns[2] = column3;
+		this->columns[3] = column4;
+	}
+
+	mat4_t(const vec4 columns[4])
+	{
+		this->columns[0] = column1;
+		this->columns[1] = column2;
+		this->columns[2] = column3;
+		this->columns[3] = column4;
+	}
+
+	mat4_t(const T values[4 * 4])
+	{
+		for (int i = 0; i < 4 * 4; i++)
+			(reinterpret_cast<T*>(this))[i] = values[i];
+	}
+
+	mat4_t(
+		const T a, const T b, const T c, const T d,
+		const T e, const T f, const T g, const T h,
+		const T i, const T j, const T k, const T l,
+		const T m, const T n, const T o, const T p)
+	{
+		(*this) = mat4(
+			vec4(a, b, c, d),
+			vec4(e, f, g, h),
+			vec4(i, j, k, l),
+			vec4(m, n, o, p)
+		);
+	}
+
+	mat4_t(const mat2 &m)
+	{
+		(*this) = mat4(
+			vec4(m[0], T(0), T(0)),
+			vec4(m[1], T(0), T(0)),
+			vec4(T(0), T(0), T(1), T(0)),
+			vec4(T(0), T(0), T(0), T(1))
+		);
+	}
+
+	mat4_t(const mat3 &m)
+	{
+		(*this) = mat4(
+			vec4(m[0], T(0)),
+			vec4(m[1], T(0)),
+			vec4(m[2], T(0)),
+			vec4(T(0), T(0), T(0), T(1))
+		);
+	}
+
+	~mat4_t(void) {}
+
+
+#pragma region Operator Overloading
+
+#pragma region Member Access Operators
+
+	inline vec4& operator[](const int index) { return (reinterpret_cast<vec4*>(this))[index]; }
+	inline vec4 operator[](const int index) const { return ((vec4*) this)[index]; }
+
+#pragma endregion
+
+#pragma region Arithmetic Operators
+
+	mat4 operator+(const mat4 &rhs) const
+	{
+		mat4 result;
+
+		for (int i = 0; i < 4; i++)
+			result[i] = (*this)[i] + rhs[i];
+
+		return result;
+	}
+
+	mat4 operator-(const mat4 &rhs) const
+	{
+		mat4 result;
+
+		for (int i = 0; i < 4; i++)
+			result[i] = (*this)[i] - rhs[i];
+
+		return result;
+	}
+
+	mat4 operator*(const mat4 &rhs) const
+	{
+		mat4 result;
+
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				result[i][j] = this->row(i).dot(rhs.col(j));
+
+		return result;
+	}
+
+	vec4 operator*(const vec4 &rhs) const
+	{
+		return vec4(
+			(rhs.x * (*this)[0].x) + (rhs.y * (*this)[1].x) + (rhs.z * (*this)[2].x) + (rhs.w * (*this)[3].x),
+			(rhs.x * (*this)[0].y) + (rhs.y * (*this)[1].y) + (rhs.z * (*this)[2].y) + (rhs.w * (*this)[3].y),
+			(rhs.x * (*this)[0].z) + (rhs.y * (*this)[1].z) + (rhs.z * (*this)[2].z) + (rhs.w * (*this)[3].z),
+			(rhs.x * (*this)[0].w) + (rhs.y * (*this)[1].w) + (rhs.z * (*this)[2].w) + (rhs.w * (*this)[3].w)
+		);
+	}
+
+	friend vec4 operator*(const vec4 &lhs, const mat4 &rhs)
+	{
+		return vec4(
+			lhs.dot(rhs[0]),
+			lhs.dot(rhs[1]),
+			lhs.dot(rhs[2]),
+			lhs.dot(rhs[3])
+		);
+	}
+
+	mat4 operator*(const T &rhs) const
+	{
+		mat4 result;
+
+		for (int i = 0; i < 4; i++)
+			result[i] = (*this)[i] * rhs;
+
+		return result;
+	}
+	friend inline mat4 operator*(const T &lhs, const mat4 &rhs) { return (rhs * lhs); }
+
+	mat4 operator/(const T &rhs) const
+	{
+		mat4 result;
+
+		for (int i = 0; i < 4; i++)
+			result[i] = (*this)[i] / rhs;
+
+		return result;
+	}
+
+#pragma endregion
+#pragma region Assignment Operators
+
+	mat4& operator+=(const mat4 &rhs) { return ((*this) = (*this) + rhs); }
+	mat4& operator-=(const mat4 &rhs) { return ((*this) = (*this) - rhs); }
+	mat4& operator*=(const mat4 &rhs) { return ((*this) = (*this) * rhs); }
+	mat4& operator*=(const T rhs) { return ((*this) = (*this) * rhs); }
+	mat4& operator/=(const T rhs) { return ((*this) = (*this) / rhs); }
+
+	mat4& operator=(const mat4 &rhs)
+	{
+		for (int i = 0; i < 4; i++)
+			this->columns[i] = rhs[i];
+
+		return (*this);
+	}
+
+#pragma endregion
+
+#pragma region Comparison Operators
+
+	bool operator==(const mat4 &rhs) const;
+
+	inline bool operator!=(const mat4 &rhs) const { return !((*this) == rhs); }
+
+#pragma endregion
+
+#pragma region Cast Operators
+
+	explicit inline operator T*(void) const { return reinterpret_cast<T*>(this); }
+
+	inline operator mat4_t<float>(void) const { return mat4_t<float>(static_cast<vec4_t<float>>(this->columns[0]), static_cast<vec4_t<float>>(this->columns[1]), static_cast<vec4_t<float>>(this->columns[2]), static_cast<vec4_t<float>>(this->columns[3])); }
+	inline operator mat4_t<double>(void) const { return mat4_t<double>(static_cast<vec4_t<double>>(this->columns[0]), static_cast<vec4_t<double>>(this->columns[1]), static_cast<vec4_t<double>>(this->columns[2]), static_cast<vec4_t<double>>(this->columns[3])); }
+
+#pragma endregion
+
+#pragma region Stream Operators
+
+#ifdef _IOSTREAM_
+
+	friend inline std::ostream& operator<<(std::ostream &stream, const mat4 &rhs)
+	{
+		return (stream << "mat4 {" << rhs[0] << "," << std::endl
+					   << "      " << rhs[1] << "," << std::endl
+					   << "      " << rhs[2] << "," << std::endl
+					   << "      " << rhs[3] << "}");
+	}
+
+	friend inline std::wostream& operator<<(std::wostream &stream, const mat4 &rhs)
+	{
+		return (stream << L"mat4 {" << rhs[0] << L"," << std::endl
+					   << L"      " << rhs[1] << L"," << std::endl
+					   << L"      " << rhs[2] << L"," << std::endl
+					   << L"      " << rhs[3] << L"}");
+	}
+
+#endif
+
+#pragma endregion
+
+#pragma endregion
+
+
+	T determinant(void) const
+	{
+		return (
+			((*this)[0][0] * (*this)[1][1] - (*this)[0][1] * (*this)[1][0]) *
+			((*this)[2][2] * (*this)[3][3] - (*this)[2][3] * (*this)[3][2]) -
+			((*this)[0][0] * (*this)[1][2] - (*this)[0][2] * (*this)[1][0]) *
+			((*this)[2][1] * (*this)[3][3] - (*this)[2][3] * (*this)[3][1]) +
+			((*this)[0][0] * (*this)[1][3] - (*this)[0][3] * (*this)[1][0]) *
+			((*this)[2][1] * (*this)[3][2] - (*this)[2][2] * (*this)[3][1]) +
+			((*this)[0][1] * (*this)[1][2] - (*this)[0][2] * (*this)[1][1]) *
+			((*this)[2][0] * (*this)[3][3] - (*this)[2][3] * (*this)[3][0]) -
+			((*this)[0][1] * (*this)[1][3] - (*this)[0][3] * (*this)[1][1]) *
+			((*this)[2][0] * (*this)[3][2] - (*this)[2][2] * (*this)[3][0]) +
+			((*this)[0][2] * (*this)[1][3] - (*this)[0][3] * (*this)[1][2]) *
+			((*this)[2][0] * (*this)[3][1] - (*this)[2][1] * (*this)[3][0])
+		);
+	}
+	friend inline T determinant(const mat4 &m) { return mat4(m).determinant(); }
+
+
+	mat4& inverse(void)
+	{
+		T *m = reinterpret_cast<T*>(this);
+		T inv[4 * 4];
+
+		inv[0] = m[5] * m[10] * m[15] -
+			m[5] * m[11] * m[14] -
+			m[9] * m[6] * m[15] +
+			m[9] * m[7] * m[14] +
+			m[13] * m[6] * m[11] -
+			m[13] * m[7] * m[10];
+
+		inv[4] = -m[4] * m[10] * m[15] +
+			m[4] * m[11] * m[14] +
+			m[8] * m[6] * m[15] -
+			m[8] * m[7] * m[14] -
+			m[12] * m[6] * m[11] +
+			m[12] * m[7] * m[10];
+
+		inv[8] = m[4] * m[9] * m[15] -
+			m[4] * m[11] * m[13] -
+			m[8] * m[5] * m[15] +
+			m[8] * m[7] * m[13] +
+			m[12] * m[5] * m[11] -
+			m[12] * m[7] * m[9];
+
+		inv[12] = -m[4] * m[9] * m[14] +
+			m[4] * m[10] * m[13] +
+			m[8] * m[5] * m[14] -
+			m[8] * m[6] * m[13] -
+			m[12] * m[5] * m[10] +
+			m[12] * m[6] * m[9];
+
+		inv[1] = -m[1] * m[10] * m[15] +
+			m[1] * m[11] * m[14] +
+			m[9] * m[2] * m[15] -
+			m[9] * m[3] * m[14] -
+			m[13] * m[2] * m[11] +
+			m[13] * m[3] * m[10];
+
+		inv[5] = m[0] * m[10] * m[15] -
+			m[0] * m[11] * m[14] -
+			m[8] * m[2] * m[15] +
+			m[8] * m[3] * m[14] +
+			m[12] * m[2] * m[11] -
+			m[12] * m[3] * m[10];
+
+		inv[9] = -m[0] * m[9] * m[15] +
+			m[0] * m[11] * m[13] +
+			m[8] * m[1] * m[15] -
+			m[8] * m[3] * m[13] -
+			m[12] * m[1] * m[11] +
+			m[12] * m[3] * m[9];
+
+		inv[13] = m[0] * m[9] * m[14] -
+			m[0] * m[10] * m[13] -
+			m[8] * m[1] * m[14] +
+			m[8] * m[2] * m[13] +
+			m[12] * m[1] * m[10] -
+			m[12] * m[2] * m[9];
+
+		inv[2] = m[1] * m[6] * m[15] -
+			m[1] * m[7] * m[14] -
+			m[5] * m[2] * m[15] +
+			m[5] * m[3] * m[14] +
+			m[13] * m[2] * m[7] -
+			m[13] * m[3] * m[6];
+
+		inv[6] = -m[0] * m[6] * m[15] +
+			m[0] * m[7] * m[14] +
+			m[4] * m[2] * m[15] -
+			m[4] * m[3] * m[14] -
+			m[12] * m[2] * m[7] +
+			m[12] * m[3] * m[6];
+
+		inv[10] = m[0] * m[5] * m[15] -
+			m[0] * m[7] * m[13] -
+			m[4] * m[1] * m[15] +
+			m[4] * m[3] * m[13] +
+			m[12] * m[1] * m[7] -
+			m[12] * m[3] * m[5];
+
+		inv[14] = -m[0] * m[5] * m[14] +
+			m[0] * m[6] * m[13] +
+			m[4] * m[1] * m[14] -
+			m[4] * m[2] * m[13] -
+			m[12] * m[1] * m[6] +
+			m[12] * m[2] * m[5];
+
+		inv[3] = -m[1] * m[6] * m[11] +
+			m[1] * m[7] * m[10] +
+			m[5] * m[2] * m[11] -
+			m[5] * m[3] * m[10] -
+			m[9] * m[2] * m[7] +
+			m[9] * m[3] * m[6];
+
+		inv[7] = m[0] * m[6] * m[11] -
+			m[0] * m[7] * m[10] -
+			m[4] * m[2] * m[11] +
+			m[4] * m[3] * m[10] +
+			m[8] * m[2] * m[7] -
+			m[8] * m[3] * m[6];
+
+		inv[11] = -m[0] * m[5] * m[11] +
+			m[0] * m[7] * m[9] +
+			m[4] * m[1] * m[11] -
+			m[4] * m[3] * m[9] -
+			m[8] * m[1] * m[7] +
+			m[8] * m[3] * m[5];
+
+		inv[15] = m[0] * m[5] * m[10] -
+			m[0] * m[6] * m[9] -
+			m[4] * m[1] * m[10] +
+			m[4] * m[2] * m[9] +
+			m[8] * m[1] * m[6] -
+			m[8] * m[2] * m[5];
+
+		T det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
+
+		if (LINALG_FEQUAL(det, 0.0))
+		{
+			(*this) = mat4::identity;
+		}
+		else
+		{
+			det = T(1) / det;
+
+			for (int i = 0; i < 4 * 4; i++)
+				m[i] = inv[i] * det;
+		}
+
+		return (*this);
+	}
+	friend inline mat4 inverse(const mat4 &m) { return mat4(m).inverse(); }
+
+
+	mat4& transpose(void)
+	{
+		return ((*this) = mat4(
+			vec4((*this)[0].x, (*this)[1].x, (*this)[2].x, (*this)[3].x),
+			vec4((*this)[0].y, (*this)[1].y, (*this)[2].y, (*this)[3].y),
+			vec4((*this)[0].z, (*this)[1].z, (*this)[2].z, (*this)[3].z),
+			vec4((*this)[0].w, (*this)[1].w, (*this)[2].w, (*this)[3].w)
+		));
+	}
+	friend inline mat4 transpose(const mat4 &m) { return mat4(m).transpose(); }
+
+
+	inline vec4 col(const int index) const
+	{
+		return (*this)[index];
+	}
+
+	inline vec4 row(const int index) const
+	{
+		return vec4(
+			(*this)[0][index],
+			(*this)[1][index],
+			(*this)[2][index],
+			(*this)[3][index]
+		);
+	}
+
+
+	mat4& translate(const vec3 &translation)
+	{
+		return ((*this) *= mat4(
+			vec4(T(1), T(0), T(0), T(0)),
+			vec4(T(0), T(1), T(0), T(0)),
+			vec4(T(0), T(0), T(1), T(0)),
+			vec4(translation.x, translation.y, translation.z, T(1.0))
+		));
+	}
+	friend inline mat4 translate(const mat4 &m, const vec3 &translation) { return mat4(m).translate(translation); }
+
+	inline mat4& translate(const T tx, const T ty, const T tz = T(0)) { return (*this).translate(vec3(tx, ty, tz)); }
+	friend inline mat4 translate(const mat4 &m, const T tx, const T ty, const T tz = T(0)) { return mat4(m).translate(tx, ty, tz); }
+
+
+	mat4& scale(const vec3 &scaling)
+	{
+		return ((*this) *= mat4(
+			vec4(scaling.x, T(0), T(0), T(0)),
+			vec4(T(0), scaling.y, T(0), T(0)),
+			vec4(T(0), T(0), scaling.z, T(0)),
+			vec4(T(0), T(0), T(0), T(1))
+		));
+	}
+	friend inline mat4 scale(const mat4 &m, const vec3 &scaling) { return mat4(m).scale(scaling); }
+
+	inline mat4& scale(const T sx, const T sy, const T sz = T(1)) { return (*this).scale(vec3(sx, sy, sz)); }
+	friend inline mat4 scale(const mat4 &m, const T sx, const T sy, const T sz = T(1)) { return mat4(m).scale(sx, sy, sz); }
+
+	inline mat4& scale(const T scaling) { return (*this).scale(vec3(scaling, scaling, scaling)); }
+	friend inline mat4 scale(const mat4 &m, const T scaling) { return mat4(m).scale(scaling, scaling, scaling); }
+
+
+	mat4& rotate(const T radians, const vec3 &axis)
+	{
+		vec3 axisNormalized = axis;
+
+		if (!axisNormalized.isUnitVector())
+			axisNormalized.normalize();
+
+		const T s = sin(radians);
+		const T c = cos(radians);
+
+		const T x = axisNormalized.x;
+		const T y = axisNormalized.y;
+		const T z = axisNormalized.z;
+
+		return ((*this) *= mat4(
+			(x * x * (T(1) - c) + c),
+			(x * y * (T(1) - c) - z * s),
+			(x * z * (T(1) - c) + y * s),
+			T(0),
+
+			(y * x * (T(1) - c) + z * s),
+			(y * y * (T(1) - c) + c),
+			(y * z * (T(1) - c) - x * s),
+			T(0),
+
+			(x * z * (T(1.0) - c) - y * s),
+			(y * z * (T(1.0) - c) + x * s),
+			(z * z * (T(1.0) - c) + c),
+			T(0),
+
+			T(0), T(0), T(0), T(1)
+		));
+	}
+	friend inline mat4 rotate(const mat4 &m, const T radians, const vec3 &axis) { return mat4(m).rotate(radians, axis); }
+
+	inline mat4& rotate(const T radians, const T ax, const T ay, const T az) { return (*this).rotate(radians, vec3(ax, ay, az)); }
+	friend inline mat4 rotate(const mat4 &m, const T radians, const T ax, const T ay, const T az) { return mat4(m).rotate(radians, ax, ay, az); }
+
+
+	inline mat4& rotateDegrees(const T degrees, const vec3 &axis) { return this->rotate(degrees * T(LINALG_DEG2RAD), axis); }
+	friend inline mat4 rotateDegrees(const mat4 &m, const T degrees, const vec3 &axis) { return mat4(m).rotateDegrees(degrees, axis); }
+
+	inline mat4& rotateDegrees(const T degrees, const T ax, const T ay, const T az) { return (*this).rotateDegrees(degrees, vec3(ax, ay, az)); }
+	friend inline mat4 rotateDegrees(const mat4 &m, const T degrees, const T ax, const T ay, const T az) { return mat4(m).rotateDegrees(degrees, ax, ay, az); }
+
+
+	mat4& rotateX(const T radians)
+	{
+		const T s = sin(radians);
+		const T c = cos(radians);
+
+		return ((*this) *= mat4(
+			vec4(T(1), T(0), T(0), T(0)),
+			vec4(T(0), c, -s, T(0)),
+			vec4(T(0), s, c, T(0)),
+			vec4(T(0), T(0), T(0), T(1))
+		));
+	}
+	friend inline mat4 rotateX(const mat4 &m, const T radians) { return mat4(m).rotateX(radians); }
+
+	inline mat4& rotateXDegrees(const T degrees) { return this->rotateX(degrees * T(LINALG_DEG2RAD)); }
+	friend inline mat4 rotateXDegrees(const mat4 &m, const T degrees) { return mat4(m).rotateXDegrees(degrees); }
+
+
+	mat4& rotateY(const T radians)
+	{
+		const T s = sin(radians);
+		const T c = cos(radians);
+
+		return ((*this) *= mat4(
+			vec4(c, T(0), s, T(0)),
+			vec4(T(0), T(1), T(0), T(0)),
+			vec4(-s, T(0), c, T(0)),
+			vec4(T(0), T(0), T(0), T(1))
+		));
+	}
+	friend inline mat4 rotateY(const mat4 &m, const T radians) { return mat4(m).rotateY(radians); }
+
+	inline mat4& rotateYDegrees(const T degrees) { return this->rotateY(degrees * T(LINALG_DEG2RAD)); }
+	friend inline mat4 rotateYDegrees(const mat4 &m, const T degrees) { return mat4(m).rotateYDegrees(degrees); }
+
+
+	mat4& rotateZ(const T radians)
+	{
+		const T s = sin(radians);
+		const T c = cos(radians);
+
+		return ((*this) *= mat4(
+			vec4(c, -s, T(0), T(0)),
+			vec4(s, c, T(0), T(0)),
+			vec4(T(0), T(0), T(1), T(0)),
+			vec4(T(0), T(0), T(0), T(1))
+		));
+	}
+	friend inline mat4 rotateZ(const mat4 &m, const T radians) { return mat4(m).rotateZ(radians); }
+
+	inline mat4& rotateZDegrees(const T degrees) { return this->rotateZ(degrees * T(LINALG_DEG2RAD)); }
+	friend inline mat4 rotateZDegrees(const mat4 &m, const T degrees) { return mat4(m).rotateZDegrees(degrees); }
+
+
+	// Skew along the x-axis and y-axis
+	mat4& skew(const T x, const T y)
+	{
+		return ((*this) *= mat4(
+			T(1), tan(x), T(0), T(0),
+			tan(y), T(1), T(0), T(0),
+			T(0), T(0), T(1), T(0),
+			T(0), T(0), T(0), T(1)
+		));
+	}
+	friend inline mat4 skew(const mat4 &m, const T x, const T y) { return mat4(m).skew(x, y); }
+
+	inline mat4& skewDegrees(const T x, const T y) { return this->skew(x * T(LINALG_DEG2RAD), y * T(LINALG_DEG2RAD)); }
+	friend inline mat4 skewDegrees(const mat4 &m, const T x, const T y) { return mat4(m).skewDegrees(x, y); }
+
+
+	// Skew along the x-axis
+	mat4& skewX(const T radians)
+	{
+		return ((*this) *= mat4(
+			T(1), tan(radians), T(0), T(0),
+			T(0), T(1), T(0), T(0),
+			T(0), T(0), T(1), T(0),
+			T(0), T(0), T(0), T(1)
+		));
+	}
+	friend inline mat4 skewX(const mat4 &m, const T radians) { return mat4(m).skewX(radians); }
+
+	inline mat4& skewXDegrees(const T degrees) { return this->skewX(degrees * T(LINALG_DEG2RAD)); }
+	friend inline mat4 skewXDegrees(const mat4 &m, const T degrees) { return mat4(m).skewXDegrees(degrees); }
+
+
+	// Skew along the y-axis
+	mat4& skewY(const T radians)
+	{
+		return ((*this) *= mat4(
+			T(1), T(0), T(0), T(0),
+			tan(radians), T(1), T(0), T(0),
+			T(0), T(0), T(1), T(0),
+			T(0), T(0), T(0), T(1)
+		));
+	}
+	friend inline mat4 skewY(const mat4 &m, const T radians) { return mat4(m).skewY(radians); }
+
+	inline mat4& skewYDegrees(const T degrees) { return this->skewY(degrees * T(LINALG_DEG2RAD)); }
+	friend inline mat4 skewYDegrees(const mat4 &m, const T degrees) { return mat4(m).skewYDegrees(degrees); }
+
+
+	mat4& perspective(const T fov, const T aspect, const T zNear, const T zFar)
+	{
+		const T fovRads = fov * T(LINALG_DEG2RAD);
+
+		const T range = tan(fovRads * T(0.5)) * zNear;
+		const T sx = (zNear * T(2)) / (range * aspect + range * aspect);
+		const T sy = zNear / range;
+		const T sz = -(zFar + zNear) / (zFar - zNear);
+		const T pz = -(zFar * zNear * T(2)) / (zFar - zNear);
+
+		return ((*this) *= mat4(
+			vec4(sx, T(0), T(0), T(0)),
+			vec4(T(0), sy, T(0), T(0)),
+			vec4(T(0), T(0), sz, T(-1)),
+			vec4(T(0), T(0), pz, T(0))
+		));
+	}
+
+
+	mat4& orthographic(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
+	{
+		return ((*this) *= mat4(
+			vec4((T(2) / (right - left)), T(0), T(0), T(0)),
+			vec4(T(0), (T(2) / (top - bottom)), T(0), T(0)),
+			vec4(T(0), T(0), (T(-2) / (zFar - zNear)), T(0)),
+			vec4(-((right + left) / (right - left)), -((top + bottom) / (top - bottom)), -((zFar + zNear) / (zFar - zNear)), T(1))
+		));
+	}
+
+	mat4& frustum(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
+	{
+		return (*this).orthographic(left, right, bottom, top, zNear, zFar);
+	}
+
+
+	mat4& viewport(const T x, const T y, const T width, const T height)
+	{
+		const T half_width = width * T(0.5);
+		const T half_height = height * T(0.5);
+
+		// This is only correct when glDepthRangef(0.0f, 1.0f)
+		const T zNear = T(0);
+		const T zFar = T(1);
+
+		return ((*this) *= mat4(
+			half_width, T(0), T(0), T(0),
+			T(0), half_height, T(0), T(0),
+			T(0), T(0), (zFar - zNear) * T(0.5), T(0),
+			x + half_width, y + half_height, (zNear + zFar) * T(0.5), T(1)
+		));
+	}
+
+
+	mat4& lookAt(const vec3 &eye, const vec3 &at, const vec3 &up = vec3(T(0), T(1), T(0)))
+	{
+		vec3 z_axis = (eye - at).normalize();
+		vec3 x_axis = up.cross(z_axis).normalize();
+		vec3 y_axis = z_axis.cross(x_axis);
+
+		return ((*this) *= mat4(
+			x_axis.x, y_axis.x, z_axis.x, T(0),
+			x_axis.y, y_axis.y, z_axis.y, T(0),
+			x_axis.z, y_axis.z, z_axis.z, T(0),
+			-x_axis.dot(eye), -y_axis.dot(eye), -z_axis.dot(eye), T(1)
+		));
+	}
+
+
+	inline vec3 getTranslation(void) const
+	{
+		const vec4 translation = (*this)[3];
+
+		return vec3(translation.x, translation.y, translation.z);
+	}
+};
+
+
 // It isn't an optimal solution, to inline all template functions that has explicit specialization.
 // But it is needed if we don't want to run into "multiple definitions" compilation error.
 
@@ -2066,7 +2781,7 @@ template<> bool dvec2::isNullVector(void) const
 template<> inline bool fvec2::isUnitVector() const
 {
 	const float length = this->length();
-
+	
 	return LINALG_FEQUAL(length, 1.0f);
 }
 
@@ -2669,6 +3384,49 @@ template<> inline bool mat3_t<float>::operator==(const mat3_t<float> &rhs) const
 template<> inline bool mat3_t<double>::operator==(const mat3_t<double> &rhs) const
 {
 	for (int i = 0; i < 3; i++)
+		if (!LINALG_DEQUAL((*this)[i], rhs[i]))
+			return false;
+
+	return true;
+}
+
+#pragma endregion
+
+#pragma endregion
+
+
+#pragma region mat4
+
+#pragma region Static Members
+
+template<typename T> const mat4_t<T> mat4_t<T>::zero = mat4_t<T>(T(0));
+template<typename T> const mat4_t<T> mat4_t<T>::identity = mat4_t<T>(T(1));
+
+#pragma endregion
+
+#pragma region Comparison Operators
+
+template<typename T> inline bool mat4_t<T>::operator==(const mat4_t &rhs) const
+{
+	for (int i = 0; i < 4; i++)
+		if ((*this)[i] != rhs[i])
+			return false;
+
+	return true;
+}
+
+template<> inline bool mat4_t<float>::operator==(const mat4_t<float> &rhs) const
+{
+	for (int i = 0; i < 4; i++)
+		if (!LINALG_FEQUAL((*this)[i], rhs[i]))
+			return false;
+
+	return true;
+}
+
+template<> inline bool mat4_t<double>::operator==(const mat4_t<double> &rhs) const
+{
+	for (int i = 0; i < 4; i++)
 		if (!LINALG_DEQUAL((*this)[i], rhs[i]))
 			return false;
 
