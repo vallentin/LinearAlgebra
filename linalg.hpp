@@ -2780,16 +2780,12 @@ template<> bool dvec2::isNullVector(void) const
 
 template<> inline bool fvec2::isUnitVector() const
 {
-	const float length = this->length();
-	
-	return LINALG_FEQUAL(length, 1.0f);
+	return LINALG_FEQUAL(this->lengthSquared(), 1.0f);
 }
 
 template<> inline bool dvec2::isUnitVector() const
 {
-	const double length = this->length();
-
-	return LINALG_DEQUAL(length, 1.0);
+	return LINALG_DEQUAL(this->lengthSquared(), 1.0f);
 }
 
 
@@ -2988,18 +2984,14 @@ template<> bool dvec3::isNullVector(void) const
 }
 
 
-template<> bool fvec3::isUnitVector() const
+template<> inline bool fvec3::isUnitVector() const
 {
-	const float length = this->length();
-
-	return LINALG_FEQUAL(length, 1.0f);
+	return LINALG_FEQUAL(this->lengthSquared(), 1.0f);
 }
 
-template<> bool dvec3::isUnitVector() const
+template<> inline bool dvec3::isUnitVector() const
 {
-	const double length = this->length();
-
-	return LINALG_DEQUAL(length, 1.0);
+	return LINALG_DEQUAL(this->lengthSquared(), 1.0f);
 }
 
 
@@ -3189,18 +3181,14 @@ template<> bool dvec4::isNullVector(void) const
 }
 
 
-template<> bool fvec4::isUnitVector() const
+template<> inline bool fvec4::isUnitVector() const
 {
-	const float length = this->length();
-
-	return LINALG_FEQUAL(length, 1.0f);
+	return LINALG_FEQUAL(this->lengthSquared(), 1.0f);
 }
 
-template<> bool dvec4::isUnitVector() const
+template<> inline bool dvec4::isUnitVector() const
 {
-	const double length = this->length();
-
-	return LINALG_DEQUAL(length, 1.0);
+	return LINALG_DEQUAL(this->lengthSquared(), 1.0f);
 }
 
 
