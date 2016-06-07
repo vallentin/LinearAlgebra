@@ -47,14 +47,18 @@ public:
 	}
 
 
+	mat4 getMatrix() const
+	{
+		if (stack.empty())
+			return mat4::identity;
+
+		return stack.top();
+	}
+
+
 	void pushMatrix()
 	{
-		mat4 m = mat4::identity;
-
-		if (!stack.empty())
-			m = stack.top();
-
-		stack.push(m);
+		stack.push(getMatrix());
 	}
 
 	void popMatrix()
