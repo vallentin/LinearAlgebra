@@ -185,6 +185,8 @@ public:
 
 	vec2_t(void) : x(T(0)), y(T(0)) {}
 
+	vec2_t(const vec2_t<T> &v) : x(T(v.x)), y(T(v.y)) {}
+
 	template<typename T2> vec2_t(const vec2_t<T2> &v) : x(T(v.x)), y(T(v.y)) {}
 
 	template<typename T2> vec2_t(const T2 &xy) : x(T(xy)), y(T(xy)) {}
@@ -277,6 +279,14 @@ public:
 		return (*this);
 	}
 
+	template<typename T2>
+	vec2& operator=(const T2 &rhs)
+	{
+		(*this) = vec2(rhs);
+
+		return (*this);
+	}
+
 	vec2& operator=(const vec2 &rhs)
 	{
 		// memcpy(this, &rhs, sizeof(rhs));
@@ -284,6 +294,15 @@ public:
 
 		this->x = rhs.x;
 		this->y = rhs.y;
+
+		return (*this);
+	}
+
+	template<typename T2>
+	vec2& operator=(const vec2_t<T2> &rhs)
+	{
+		this->x = T(rhs.x);
+		this->y = T(rhs.y);
 
 		return (*this);
 	}
@@ -324,20 +343,19 @@ public:
 
 #pragma region Cast Operators
 
-	explicit inline operator T*(void) const { return reinterpret_cast<T*>(this); }
+	inline explicit operator T*(void) const
+	{
+		return reinterpret_cast<T*>(this);
+	}
 
-	inline operator vec2_t<float>(void) const { return vec2_t<float>(static_cast<float>(this->x), static_cast<float>(this->y)); }
-	inline operator vec2_t<double>(void) const { return vec2_t<double>(static_cast<double>(this->x), static_cast<double>(this->y)); }
-
-	inline operator vec2_t<signed int>(void) const { return vec2_t<signed int>(static_cast<signed int>(this->x), static_cast<signed int>(this->y)); }
-	inline operator vec2_t<unsigned int>(void) const { return vec2_t<unsigned int>(static_cast<unsigned int>(this->x), static_cast<unsigned int>(this->y)); }
-
-	inline operator vec2_t<bool>(void) const { return vec2_t<bool>(static_cast<bool>(this->x), static_cast<bool>(this->y)); }
-
-	inline operator vec2_t<signed long>(void) const { return vec2_t<signed long>(static_cast<signed long>(this->x), static_cast<signed long>(this->y)); }
-	inline operator vec2_t<unsigned long>(void) const { return vec2_t<unsigned long>(static_cast<unsigned long>(this->x), static_cast<unsigned long>(this->y)); }
-	inline operator vec2_t<signed long long>(void) const { return vec2_t<signed long long>(static_cast<signed long long>(this->x), static_cast<signed long long>(this->y)); }
-	inline operator vec2_t<unsigned long long>(void) const { return vec2_t<unsigned long long>(static_cast<unsigned long long>(this->x), static_cast<unsigned long long>(this->y)); }
+	template<typename T2>
+	inline operator vec2_t<T2>(void) const
+	{
+		return vec2_t<T2>(
+			static_cast<T2>(this->x),
+			static_cast<T2>(this->y)
+		);
+	}
 
 #pragma endregion
 
@@ -637,6 +655,8 @@ public:
 
 	vec3_t(void) : x(T(0)), y(T(0)), z(T(0)) {}
 
+	vec3_t(const vec3_t<T> &v) : x(v.x), y(v.y), z(v.z) {}
+
 	template<typename T2> vec3_t(const vec3_t<T2> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
 
 	template<typename T2> vec3_t(const T2 &xyz) : x(T(xyz)), y(T(xyz)), z(T(xyz)) {}
@@ -734,9 +754,10 @@ public:
 		return (*this);
 	}
 
-	vec3& operator=(const vec2 &rhs)
+	template<typename T2>
+	vec3& operator=(const T2 &rhs)
 	{
-		(*this) = vec3(rhs, this->z, this->w);
+		(*this) = vec3(rhs);
 
 		return (*this);
 	}
@@ -749,6 +770,16 @@ public:
 		this->x = rhs.x;
 		this->y = rhs.y;
 		this->z = rhs.z;
+
+		return (*this);
+	}
+
+	template<typename T2>
+	vec3& operator=(const vec3_t<T2> &rhs)
+	{
+		this->x = T(rhs.x);
+		this->y = T(rhs.y);
+		this->z = T(rhs.z);
 
 		return (*this);
 	}
@@ -789,21 +820,21 @@ public:
 
 #pragma region Cast Operators
 
-	explicit inline operator T*(void) const { return reinterpret_cast<T*>(this); }
+	inline explicit operator T*(void) const
+	{
+		return reinterpret_cast<T*>(this);
+	}
 
-	inline operator vec3_t<float>(void) const { return vec3_t<float>(static_cast<float>(this->x), static_cast<float>(this->y), static_cast<float>(this->z)); }
-	inline operator vec3_t<double>(void) const { return vec3_t<double>(static_cast<double>(this->x), static_cast<double>(this->y), static_cast<double>(this->z)); }
-
-	inline operator vec3_t<signed int>(void) const { return vec3_t<signed int>(static_cast<signed int>(this->x), static_cast<signed int>(this->y), static_cast<signed int>(this->z)); }
-	inline operator vec3_t<unsigned int>(void) const { return vec3_t<unsigned int>(static_cast<unsigned int>(this->x), static_cast<unsigned int>(this->y), static_cast<unsigned int>(this->z)); }
-
-	inline operator vec3_t<bool>(void) const { return vec3_t<bool>(static_cast<bool>(this->x), static_cast<bool>(this->y), static_cast<bool>(this->z)); }
-
-	inline operator vec3_t<signed long>(void) const { return vec3_t<signed long>(static_cast<signed long>(this->x), static_cast<signed long>(this->y), static_cast<signed long>(this->z)); }
-	inline operator vec3_t<unsigned long>(void) const { return vec3_t<unsigned long>(static_cast<unsigned long>(this->x), static_cast<unsigned long>(this->y), static_cast<unsigned long>(this->z)); }
-	inline operator vec3_t<signed long long>(void) const { return vec3_t<signed long long>(static_cast<signed long long>(this->x), static_cast<signed long long>(this->y), static_cast<signed long long>(this->z)); }
-	inline operator vec3_t<unsigned long long>(void) const { return vec3_t<unsigned long long>(static_cast<unsigned long long>(this->x), static_cast<unsigned long long>(this->y), static_cast<unsigned long long>(this->z)); }
-
+	template<typename T2>
+	inline operator vec3_t<T2>(void) const
+	{
+		return vec3_t<T2>(
+			static_cast<T2>(this->x),
+			static_cast<T2>(this->y),
+			static_cast<T2>(this->z)
+		);
+	}
+	
 #pragma endregion
 
 #pragma region Stream Operators
@@ -1083,6 +1114,8 @@ public:
 
 	vec4_t(void) : x(T(0)), y(T(0)), z(T(0)), w(T(0)) {}
 
+	vec4_t(const vec4_t<T> &v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
+
 	template<typename T2> vec4_t(const vec4_t<T2> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
 
 	template<typename T2> vec4_t(const T2 &xyzw) : x(T(xyzw)), y(T(xyzw)), z(T(xyzw)), w(T(xyzw)) {}
@@ -1182,16 +1215,10 @@ public:
 		return (*this);
 	}
 
-	vec4& operator=(const vec2 &rhs)
+	template<typename T2>
+	vec4& operator=(const T2 &rhs)
 	{
-		(*this) = vec4(rhs, this->z, this->w);
-
-		return (*this);
-	}
-
-	vec4& operator=(const vec3 &rhs)
-	{
-		(*this) = vec4(rhs, this->w);
+		(*this) = vec4(rhs);
 
 		return (*this);
 	}
@@ -1205,6 +1232,17 @@ public:
 		this->y = rhs.y;
 		this->z = rhs.z;
 		this->w = rhs.w;
+
+		return (*this);
+	}
+
+	template<typename T2>
+	vec4& operator=(const vec4_t<T2> &rhs)
+	{
+		this->x = T(rhs.x);
+		this->y = T(rhs.y);
+		this->z = T(rhs.z);
+		this->w = T(rhs.w);
 
 		return (*this);
 	}
@@ -1245,21 +1283,22 @@ public:
 
 #pragma region Cast Operators
 
-	explicit inline operator T*(void) const { return reinterpret_cast<T*>(this); }
+	inline explicit operator T*(void) const
+	{
+		return reinterpret_cast<T*>(this);
+	}
 
-	inline operator vec4_t<float>(void) const { return vec4_t<float>(static_cast<float>(this->x), static_cast<float>(this->y), static_cast<float>(this->z), static_cast<float>(this->w)); }
-	inline operator vec4_t<double>(void) const { return vec4_t<double>(static_cast<double>(this->x), static_cast<double>(this->y), static_cast<double>(this->z), static_cast<double>(this->w)); }
-
-	inline operator vec4_t<signed int>(void) const { return vec4_t<signed int>(static_cast<signed int>(this->x), static_cast<signed int>(this->y), static_cast<signed int>(this->z), static_cast<signed int>(this->w)); }
-	inline operator vec4_t<unsigned int>(void) const { return vec4_t<unsigned int>(static_cast<unsigned int>(this->x), static_cast<unsigned int>(this->y), static_cast<unsigned int>(this->z), static_cast<unsigned int>(this->w)); }
-
-	inline operator vec4_t<bool>(void) const { return vec4_t<bool>(static_cast<bool>(this->x), static_cast<bool>(this->y), static_cast<bool>(this->z), static_cast<bool>(this->w)); }
-
-	inline operator vec4_t<signed long>(void) const { return vec4_t<signed long>(static_cast<signed long>(this->x), static_cast<signed long>(this->y), static_cast<signed long>(this->z), static_cast<signed long>(this->w)); }
-	inline operator vec4_t<unsigned long>(void) const { return vec4_t<unsigned long>(static_cast<unsigned long>(this->x), static_cast<unsigned long>(this->y), static_cast<unsigned long>(this->z), static_cast<unsigned long>(this->w)); }
-	inline operator vec4_t<signed long long>(void) const { return vec4_t<signed long long>(static_cast<signed long long>(this->x), static_cast<signed long long>(this->y), static_cast<signed long long>(this->z), static_cast<signed long long>(this->w)); }
-	inline operator vec4_t<unsigned long long>(void) const { return vec4_t<unsigned long long>(static_cast<unsigned long long>(this->x), static_cast<unsigned long long>(this->y), static_cast<unsigned long long>(this->z), static_cast<unsigned long long>(this->w)); }
-
+	template<typename T2>
+	inline operator vec4_t<T2>(void) const
+	{
+		return vec4_t<T2>(
+			static_cast<T2>(this->x),
+			static_cast<T2>(this->y),
+			static_cast<T2>(this->z),
+			static_cast<T2>(this->w)
+		);
+	}
+	
 #pragma endregion
 
 #pragma region Stream Operators
@@ -1532,8 +1571,8 @@ public:
 	}
 
 	mat2_t(
-		const T a, const T b,
-		const T c, const T d)
+		const T a, const T b, // first column
+		const T c, const T d) // second column
 	{
 		(*this) = mat2(
 			vec2(a, b),
@@ -1632,10 +1671,34 @@ public:
 	mat2& operator*=(const T rhs) { return ((*this) = (*this) * rhs); }
 	mat2& operator/=(const T rhs) { return ((*this) = (*this) / rhs); }
 
+	mat2& operator=(const T &rhs)
+	{
+		(*this) = mat2(rhs);
+
+		return (*this);
+	}
+
+	template<typename T2>
+	mat2& operator=(const T2 &rhs)
+	{
+		(*this) = mat2(rhs);
+
+		return (*this);
+	}
+
 	mat2& operator=(const mat2 &rhs)
 	{
 		for (int i = 0; i < 2; i++)
 			this->columns[i] = rhs[i];
+
+		return (*this);
+	}
+
+	template<typename T2>
+	mat2& operator=(const mat2_t<T2> &rhs)
+	{
+		for (int i = 0; i < 2; i++)
+			this->columns[i] = vec2(rhs[i]);
 
 		return (*this);
 	}
@@ -1652,10 +1715,19 @@ public:
 
 #pragma region Cast Operators
 
-	explicit inline operator T*(void) const { return reinterpret_cast<T*>(this); }
+	inline explicit operator T*(void) const
+	{
+		return reinterpret_cast<T*>(this);
+	}
 
-	inline operator mat2_t<float>(void) const { return mat2_t<float>(static_cast<vec2_t<float>>(this->columns[0]), static_cast<vec2_t<float>>(this->columns[1])); }
-	inline operator mat2_t<double>(void) const { return mat2_t<double>(static_cast<vec2_t<double>>(this->columns[0]), static_cast<vec2_t<double>>(this->columns[1])); }
+	template<typename T2>
+	inline operator mat2_t<T2>(void) const
+	{
+		return mat2_t<T2>(
+			static_cast<vec2_t<T2>>(this->columns[0]),
+			static_cast<vec2_t<T2>>(this->columns[1])
+		);
+	}
 
 #pragma endregion
 
@@ -1799,9 +1871,9 @@ public:
 	}
 
 	mat3_t(
-		const T a, const T b, const T c,
-		const T d, const T e, const T f,
-		const T g, const T h, const T i)
+		const T a, const T b, const T c, // first column
+		const T d, const T e, const T f, // second column
+		const T g, const T h, const T i) // third column
 	{
 		(*this) = mat3(
 			vec3(a, b, c),
@@ -1903,10 +1975,34 @@ public:
 	mat3& operator*=(const T rhs) { return ((*this) = (*this) * rhs); }
 	mat3& operator/=(const T rhs) { return ((*this) = (*this) / rhs); }
 
+	mat3& operator=(const T &rhs)
+	{
+		(*this) = mat3(rhs);
+
+		return (*this);
+	}
+
+	template<typename T2>
+	mat3& operator=(const T2 &rhs)
+	{
+		(*this) = mat3(rhs);
+
+		return (*this);
+	}
+
 	mat3& operator=(const mat3 &rhs)
 	{
 		for (int i = 0; i < 3; i++)
 			this->columns[i] = rhs[i];
+
+		return (*this);
+	}
+
+	template<typename T2>
+	mat3& operator=(const mat3_t<T2> &rhs)
+	{
+		for (int i = 0; i < 3; i++)
+			this->columns[i] = vec3(rhs[i]);
 
 		return (*this);
 	}
@@ -1923,10 +2019,20 @@ public:
 
 #pragma region Cast Operators
 
-	explicit inline operator T*(void) const { return reinterpret_cast<T*>(this); }
+	inline explicit operator T*(void) const
+	{
+		return reinterpret_cast<T*>(this);
+	}
 
-	inline operator mat3_t<float>(void) const { return mat3_t<float>(static_cast<vec3_t<float>>(this->columns[0]), static_cast<vec3_t<float>>(this->columns[1]), static_cast<vec3_t<float>>(this->columns[2])); }
-	inline operator mat3_t<double>(void) const { return mat3_t<double>(static_cast<vec3_t<double>>(this->columns[0]), static_cast<vec3_t<double>>(this->columns[1]), static_cast<vec3_t<double>>(this->columns[2])); }
+	template<typename T2>
+	inline operator mat3_t<T2>(void) const
+	{
+		return mat3_t<T2>(
+			static_cast<vec3_t<T2>>(this->columns[0]),
+			static_cast<vec3_t<T2>>(this->columns[1]),
+			static_cast<vec3_t<T2>>(this->columns[2])
+		);
+	}
 
 #pragma endregion
 
@@ -2213,10 +2319,34 @@ public:
 	mat4& operator*=(const T rhs) { return ((*this) = (*this) * rhs); }
 	mat4& operator/=(const T rhs) { return ((*this) = (*this) / rhs); }
 
+	mat4& operator=(const T &rhs)
+	{
+		(*this) = mat4(rhs);
+
+		return (*this);
+	}
+
+	template<typename T2>
+	mat4& operator=(const T2 &rhs)
+	{
+		(*this) = mat4(rhs);
+
+		return (*this);
+	}
+
 	mat4& operator=(const mat4 &rhs)
 	{
 		for (int i = 0; i < 4; i++)
 			this->columns[i] = rhs[i];
+
+		return (*this);
+	}
+
+	template<typename T2>
+	mat4& operator=(const mat4_t<T2> &rhs)
+	{
+		for (int i = 0; i < 4; i++)
+			this->columns[i] = vec4(rhs[i]);
 
 		return (*this);
 	}
@@ -2233,10 +2363,21 @@ public:
 
 #pragma region Cast Operators
 
-	explicit inline operator T*(void) const { return reinterpret_cast<T*>(this); }
+	inline explicit operator T*(void) const
+	{
+		return reinterpret_cast<T*>(this);
+	}
 
-	inline operator mat4_t<float>(void) const { return mat4_t<float>(static_cast<vec4_t<float>>(this->columns[0]), static_cast<vec4_t<float>>(this->columns[1]), static_cast<vec4_t<float>>(this->columns[2]), static_cast<vec4_t<float>>(this->columns[3])); }
-	inline operator mat4_t<double>(void) const { return mat4_t<double>(static_cast<vec4_t<double>>(this->columns[0]), static_cast<vec4_t<double>>(this->columns[1]), static_cast<vec4_t<double>>(this->columns[2]), static_cast<vec4_t<double>>(this->columns[3])); }
+	template<typename T2>
+	inline operator mat4_t<T2>(void) const
+	{
+		return mat4_t<T2>(
+			static_cast<vec4_t<T2>>(this->columns[0]),
+			static_cast<vec4_t<T2>>(this->columns[1]),
+			static_cast<vec4_t<T2>>(this->columns[2]),
+			static_cast<vec4_t<T2>>(this->columns[3])
+		);
+	}
 
 #pragma endregion
 
