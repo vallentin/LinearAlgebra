@@ -4,7 +4,7 @@
 // Repository: https://github.com/MrVallentin/LinearAlgebra
 //
 // Date Created: October 01, 2013
-// Last Modified: June 06, 2016
+// Last Modified: June 07, 2016
 
 #ifndef LINEAR_ALGEBRA_HPP
 #define LINEAR_ALGEBRA_HPP
@@ -1581,7 +1581,7 @@ public:
 
 		for (int i = 0; i < 2; i++)
 			for (int j = 0; j < 2; j++)
-				result[i][j] = this->row(i).dot(rhs.col(j));
+				result.value(i, j, this->row(i).dot(rhs.col(j)));
 
 		return result;
 	}
@@ -1729,6 +1729,17 @@ public:
 			(*this)[1][index]
 		);
 	}
+
+
+	inline T value(const int row, const int column) const
+	{
+		return (*this)[column][row];
+	}
+
+	inline void value(const int row, const int column, const T &value)
+	{
+		(*this)[column][row] = value;
+	}
 };
 
 
@@ -1839,7 +1850,7 @@ public:
 
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 3; j++)
-				result[i][j] = this->row(i).dot(rhs.col(j));
+				result.value(i, j, this->row(i).dot(rhs.col(j)));
 
 		return result;
 	}
@@ -1998,6 +2009,17 @@ public:
 			(*this)[2][index]
 		);
 	}
+
+
+	inline T value(const int row, const int column) const
+	{
+		return (*this)[column][row];
+	}
+
+	inline void value(const int row, const int column, const T &value)
+	{
+		(*this)[column][row] = value;
+	}
 };
 
 
@@ -2063,10 +2085,10 @@ public:
 	}
 
 	mat4_t(
-		const T a, const T b, const T c, const T d,
-		const T e, const T f, const T g, const T h,
-		const T i, const T j, const T k, const T l,
-		const T m, const T n, const T o, const T p)
+		const T a, const T b, const T c, const T d, // first column
+		const T e, const T f, const T g, const T h, // second column
+		const T i, const T j, const T k, const T l, // third column
+		const T m, const T n, const T o, const T p) // fourth column
 	{
 		(*this) = mat4(
 			vec4(a, b, c, d),
@@ -2136,7 +2158,7 @@ public:
 
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++)
-				result[i][j] = this->row(i).dot(rhs.col(j));
+				result.value(i, j, this->row(i).dot(rhs.col(j)));
 
 		return result;
 	}
@@ -2429,13 +2451,24 @@ public:
 	}
 
 
+	inline T value(const int row, const int column) const
+	{
+		return (*this)[column][row];
+	}
+
+	inline void value(const int row, const int column, const T &value)
+	{
+		(*this)[column][row] = value;
+	}
+
+
 	mat4& translate(const vec3 &translation)
 	{
 		return ((*this) *= mat4(
 			vec4(T(1), T(0), T(0), T(0)),
 			vec4(T(0), T(1), T(0), T(0)),
 			vec4(T(0), T(0), T(1), T(0)),
-			vec4(translation.x, translation.y, translation.z, T(1.0))
+			vec4(translation.x, translation.y, translation.z, T(1))
 		));
 	}
 	friend inline mat4 translate(const mat4 &m, const vec3 &translation) { return mat4(m).translate(translation); }
@@ -2487,9 +2520,9 @@ public:
 			(y * z * (T(1) - c) - x * s),
 			T(0),
 
-			(x * z * (T(1.0) - c) - y * s),
-			(y * z * (T(1.0) - c) + x * s),
-			(z * z * (T(1.0) - c) + c),
+			(x * z * (T(1) - c) - y * s),
+			(y * z * (T(1) - c) + x * s),
+			(z * z * (T(1) - c) + c),
 			T(0),
 
 			T(0), T(0), T(0), T(1)
