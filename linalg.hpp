@@ -30,6 +30,8 @@ template<typename T> class mat2_t;
 template<typename T> class mat3_t;
 template<typename T> class mat4_t;
 
+template<typename T> class quat_t;
+
 
 typedef vec2_t<LINALG_DEFAULT_SCALAR> vec2;
 
@@ -121,6 +123,12 @@ typedef mat4x4_t<float> fmat4x4;
 typedef mat4x4_t<double> dmat4x4;
 
 
+typedef quat_t<LINALG_DEFAULT_SCALAR> quat;
+
+typedef quat_t<float> fquat;
+typedef quat_t<double> dquat;
+
+
 #if defined(_DEBUG) && !defined(DEBUG)
 #	define DEBUG 1
 #endif
@@ -186,7 +194,6 @@ public:
 	vec2_t(void) : x(T(0)), y(T(0)) {}
 
 	vec2_t(const vec2_t<T> &v) : x(T(v.x)), y(T(v.y)) {}
-
 	template<typename T2> vec2_t(const vec2_t<T2> &v) : x(T(v.x)), y(T(v.y)) {}
 
 	template<typename T2> vec2_t(const T2 &xy) : x(T(xy)), y(T(xy)) {}
@@ -656,7 +663,6 @@ public:
 	vec3_t(void) : x(T(0)), y(T(0)), z(T(0)) {}
 
 	vec3_t(const vec3_t<T> &v) : x(v.x), y(v.y), z(v.z) {}
-
 	template<typename T2> vec3_t(const vec3_t<T2> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
 
 	template<typename T2> vec3_t(const T2 &xyz) : x(T(xyz)), y(T(xyz)), z(T(xyz)) {}
@@ -1115,13 +1121,12 @@ public:
 	vec4_t(void) : x(T(0)), y(T(0)), z(T(0)), w(T(0)) {}
 
 	vec4_t(const vec4_t<T> &v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
-
 	template<typename T2> vec4_t(const vec4_t<T2> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
 
 	template<typename T2> vec4_t(const T2 &xyzw) : x(T(xyzw)), y(T(xyzw)), z(T(xyzw)), w(T(xyzw)) {}
 	template<typename T2> vec4_t(const T2 &x, const T2 &y, const T2 &z, const T2 &w) : x(T(x)), y(T(y)), z(T(z)), w(T(w)) {}
 
-	template<typename T2> vec4_t(const T2 *xyzw) : x(T(xyzw[0])), y(T(xyzw[0])), z(T(xyzw[0])), w(T(xyzw[0])) {}
+	template<typename T2> vec4_t(const T2 *xyzw) : x(T(xyzw[0])), y(T(xyzw[1])), z(T(xyzw[2])), w(T(xyzw[3])) {}
 
 	template<typename T2, typename T3> vec4_t(const vec3_t<T2> &xyz, const T3 &w = T3(0)) : x(T(xyz.x)), y(T(xyz.y)), z(T(xyz.z)), w(T(w)) {}
 	template<typename T2, typename T3> vec4_t(const T2 &x, const vec3_t<T3> &yzw) : x(T(x)), y(T(yzw.x)), z(T(yzw.y)), w(T(yzw.z)) {}
@@ -2861,6 +2866,278 @@ public:
 };
 
 
+template<typename T>
+class quat_t
+{
+private:
+
+	typedef vec3_t<T> vec3;
+	typedef vec4_t<T> vec4;
+
+	typedef quat_t<T> quat;
+
+
+public:
+
+	T x, y, z, w;
+
+
+public:
+
+	quat_t(void) : x(T(0)), y(T(0)), z(T(0)), w(T(0)) {}
+
+	quat_t(const quat_t<T> &q) : x(q.x), y(q.y), z(q.z), w(q.w) {}
+	template<typename T2> quat_t(const quat_t<T2> &q) : x(T(q.x)), y(T(q.y)), z(T(q.z)), w(T(q.w)) {}
+
+	template<typename T2> quat_t(const vec4 &v) : x(T(v[0])), y(T(v[1])), z(T(v[2])), w(T(v[3])) {}
+	template<typename T2> quat_t(const vec4_t<T2> &q) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
+
+	template<typename T2> quat_t(const T2 &xyzw) : x(T(xyzw)), y(T(xyzw)), z(T(xyzw)), w(T(xyzw)) {}
+	template<typename T2> quat_t(const T2 &x, const T2 &y, const T2 &z, const T2 &w) : x(T(x)), y(T(y)), z(T(z)), w(T(w)) {}
+
+	template<typename T2> quat_t(const T2 *xyzw) : x(T(xyzw[0])), y(T(xyzw[1])), z(T(xyzw[2])), w(T(xyzw[3])) {}
+
+	quat_t(const T radians, const vec3 &axis)
+	{
+		(*this) = this->rotate(radians, axis);
+	}
+
+	~quat_t(void) {}
+
+
+#pragma region Operator Overloading
+
+#pragma region Member Access Operators
+
+	inline T& operator[](const int index) { return (reinterpret_cast<T*>(this))[index]; }
+	// inline T operator[](const int index) const { return (reinterpret_cast<T*>(this))[index]; }
+	inline T operator[](const int index) const { return ((T*) this)[index]; }
+
+#pragma endregion
+
+#pragma region Arithmetic Operators
+
+	quat operator+(const quat &rhs) const { return quat(this->x + rhs.x, this->y + rhs.y, this->z + rhs.z, this->w + rhs.w); }
+	quat operator-(const quat &rhs) const { return quat(this->x - rhs.x, this->y - rhs.y, this->z - rhs.z, this->w - rhs.w); }
+
+	// Like for matrix multiplication, quaternion multiplication is non-commutative:
+	// (q1 * q2) != (q2 * q1)
+	quat operator*(const quat &rhs) const
+	{
+		return quat(
+			(this->w * rhs.x) + (this->x * rhs.w) + (this->y * rhs.z) - (this->z * rhs.y),
+			(this->w * rhs.y) - (this->x * rhs.z) + (this->y * rhs.w) + (this->z * rhs.x),
+			(this->w * rhs.z) + (this->x * rhs.y) - (this->y * rhs.x) + (this->z * rhs.w),
+			(this->w * rhs.w) - (this->x * rhs.x) - (this->y * rhs.y) - (this->z * rhs.z)
+		);
+	}
+
+	friend inline quat& operator*(const quat &lhs, const T &rhs) { return (lhs * quat(rhs)); }
+	friend inline quat& operator/(const quat &lhs, const T &rhs) { return (lhs / quat(rhs)); }
+
+#pragma endregion
+#pragma region Assignment Operators
+
+	inline quat& operator+=(const quat &rhs) { return ((*this) = ((*this) + rhs)); }
+	inline quat& operator-=(const quat &rhs) { return ((*this) = ((*this) - rhs)); }
+	inline quat& operator*=(const quat &rhs) { return ((*this) = ((*this) * rhs)); }
+	inline quat& operator*=(const T &rhs) { return ((*this) = ((*this) * rhs)); }
+	inline quat& operator/=(const T &rhs) { return ((*this) = ((*this) / rhs)); }
+
+	quat& operator=(const quat &rhs)
+	{
+		// memcpy(this, &rhs, sizeof(rhs));
+		// for (int i = 0; i < 4; i++) (*this)[i] = rhs[i];
+
+		this->x = rhs.x;
+		this->y = rhs.y;
+		this->z = rhs.z;
+		this->w = rhs.w;
+
+		return (*this);
+	}
+
+	template<typename T2>
+	vec4& operator=(const quat_t<T2> &rhs)
+	{
+		this->x = T(rhs.x);
+		this->y = T(rhs.y);
+		this->z = T(rhs.z);
+		this->w = T(rhs.w);
+
+		return (*this);
+	}
+
+#pragma endregion
+
+#pragma region Cast Operators
+
+	inline explicit operator T*(void) const
+	{
+		return reinterpret_cast<T*>(this);
+	}
+
+	template<typename T2>
+	inline operator quat_t<T2>(void) const
+	{
+		return quat_t<T2>(
+			static_cast<T2>(this->x),
+			static_cast<T2>(this->y),
+			static_cast<T2>(this->z),
+			static_cast<T2>(this->w)
+		);
+	}
+
+	template<typename T2>
+	inline operator vec4_t<T2>(void) const
+	{
+		return vec4_t<T2>(
+			static_cast<T2>(this->x),
+			static_cast<T2>(this->y),
+			static_cast<T2>(this->z),
+			static_cast<T2>(this->w)
+		);
+	}
+
+#pragma endregion
+
+#pragma region Stream Operators
+
+#ifdef _IOSTREAM_
+
+	friend inline std::ostream& operator<<(std::ostream &stream, const quat &rhs)
+	{
+		// return (stream << "quat (" << rhs.x << ", " << rhs.y << ", " << rhs.z << ", " << rhs.w << ")");
+		return (stream << "quat {x=" << rhs.x << ", y=" << rhs.y << ", z=" << rhs.z << ", w=" << rhs.w << "}");
+	}
+
+	friend inline std::wostream& operator<<(std::wostream &stream, const quat &rhs)
+	{
+		// return (stream << L"quat (" << rhs.x << L", " << rhs.y << L", " << rhs.z << L", " << rhs.w << L")");
+		return (stream << L"quat {x=" << rhs.x << L", y=" << rhs.y << L", z=" << rhs.z << L", w=" << rhs.w << L"}");
+	}
+
+#endif
+
+#pragma endregion
+
+#pragma endregion
+
+
+	quat conjugate(void) const
+	{
+		return quat(
+			-this->x,
+			-this->y,
+			-this->z,
+			this->w
+		);
+	}
+	friend inline quat conjugate(const quat &q) { return q.conjugate(); }
+
+
+	quat normalize(void) const
+	{
+		T norm = sqrt(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
+		norm = T(1.0) / norm;
+
+		return quat(
+			this->x * norm,
+			this->y * norm,
+			this->z * norm,
+			this->w * norm
+		);
+	}
+	friend inline quat normalize(const quat &q) { return q.normalize(); }
+
+
+	quat rotate(const T radians, const vec3 axis) const
+	{
+		const T half_angle = radians * T(0.5);
+
+		const T s = sin(half_angle);
+		const T c = cos(half_angle);
+
+		return quat(
+			axis.x * s,
+			axis.y * s,
+			axis.z * s,
+			c
+		);
+	}
+	friend inline quat rotate(const quat &q, const T angle, const vec3 axis) { return q.rotate(angle, axis); }
+
+	inline quat& rotateDegrees(const T degrees) { return this->rotate(degrees * T(LINALG_DEG2RAD)); }
+	friend inline quat rotateDegrees(const quat &q, const T degrees) { return quat(q).rotateDegrees(degrees); }
+
+
+	// Normalize then conjugate the current quaternion,
+	// to get the inverse quaternion.
+	quat inverse(void) const
+	{
+		return this->normalize().conjugate();
+	}
+	friend inline quat inverse(const quat &q) { return q.inverse(); }
+
+
+	inline quat slerp(const quat &to, const quat &t) const
+	{
+		const T EPSILON = T(1E-6f);
+
+		T omega = T(0);
+		T cosom = (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w);
+		T sinom = T(0);
+		T scale0 = T(0);
+		T scale1 = T(0);
+
+		quat result;
+
+		if ((T(1) + cosom) > EPSILON)
+		{
+			// a and b quaternions are not opposite each other
+			if ((T(1) - cosom) > EPSILON)
+			{
+				// Standard case - slerp
+				omega = acosf(cosom);
+				sinom = sinf(omega);
+				scale0 = sinf((T(1) - t) * omega) / sinom;
+				scale1 = sinf(t * omega) / sinom;
+			}
+			else
+			{
+				// a and b quaternions are very close so lerp instead
+				scale0 = T(1) - t;
+				scale1 = t;
+			}
+
+			result.x = scale0 * a.x + scale1 * b.x;
+			result.y = scale0 * a.y + scale1 * b.y;
+			result.z = scale0 * a.z + scale1 * b.z;
+			result.w = scale0 * a.w + scale1 * b.w;
+		}
+		else
+		{
+			// a and b quaternions are opposite each other
+			result.x = -b.y;
+			result.y = b.x;
+			result.z = -b.w;
+			result.w = b.z;
+
+			scale0 = sinf((T(1) - t) - T(1.57079632679));
+			scale1 = sinf(t * T(1.57079632679));
+
+			result.x = scale0 * a.x + scale1 * result.x;
+			result.y = scale0 * a.y + scale1 * result.y;
+			result.z = scale0 * a.z + scale1 * result.z;
+			result.w = scale0 * a.w + scale1 * result.w;
+		}
+
+		return result;
+	}
+	friend inline quat slerp(const quat &from, const quat &to, const T t) { return from.lerp(to, t); }
+};
+
+
 // It isn't an optimal solution, to inline all template functions that has explicit specialization.
 // But it is needed if we don't want to run into "multiple definitions" compilation error.
 
@@ -3596,6 +3873,13 @@ template<> inline bool mat4_t<double>::operator==(const mat4_t<double> &rhs) con
 }
 
 #pragma endregion
+
+#pragma endregion
+
+
+#pragma region quat
+
+
 
 #pragma endregion
 
