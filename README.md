@@ -42,6 +42,15 @@ float dotProduct = a.dot(b);
 float dotProduct = dot(a, b);
 ```
 
+```cpp
+mat4 model = mat4::identity;
+// ...
+
+mat3 normalMatrix = mat3(model.inverse().transpose());
+// vs
+mat3 normalMatrix = mat3(transpose(inverse(model)));
+```
+
 
 *[LinearAlgebra][LinearAlgebra] was first created in 2013 for use with OpenGL in Java. Later
 it was rewritten for C++ and Python, where the C++ version now is the main version.*
