@@ -46,9 +46,9 @@ float dotProduct = dot(a, b);
 mat4 model = mat4::identity;
 // ...
 
-mat3 normalMatrix = mat3(model.inverse().transpose());
+mat3 normalMatrix = model.inverse().transpose();
 // vs
-mat3 normalMatrix = mat3(transpose(inverse(model)));
+mat3 normalMatrix = transpose(inverse(model));
 ```
 
 

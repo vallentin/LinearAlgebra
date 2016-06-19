@@ -2,9 +2,10 @@
 // Author: Christian Vallentin <mail@vallentinsource.com>
 // Website: http://vallentinsource.com
 // Repository: https://github.com/MrVallentin/LinearAlgebra
+// License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: June 12, 2016
+// Last Modified: June 19, 2016
 
 #ifndef LINEAR_ALGEBRA_HPP
 #define LINEAR_ALGEBRA_HPP
@@ -143,7 +144,7 @@ typedef quat_t<double> dquat;
 #define LINALG_PI 3.1415926535897932
 
 #define LINALG_DEG2RAD (LINALG_PI / 180.0)
-#define LINALG_RAD2DEG (180.0 / LINALG_DPI)
+#define LINALG_RAD2DEG (180.0 / LINALG_PI)
 
 
 // These annoyingly named Windows macros are interfering with the related vector methods!
@@ -163,6 +164,8 @@ class vec2_t
 private:
 
 	typedef vec2_t<T> vec2;
+	typedef vec3_t<T> vec3;
+	typedef vec4_t<T> vec4;
 
 
 public:
@@ -200,6 +203,9 @@ public:
 	template<typename T2> vec2_t(const T2 &x, const T2 &y) : x(T(x)), y(T(y)) {}
 
 	template<typename T2> vec2_t(const T2 *xy) : x(T(xy[0])), y(T(xy[1])) {}
+
+	template<typename T2> vec2_t(const vec3_t<T2> &v);
+	template<typename T2> vec2_t(const vec4_t<T2> &v);
 
 	~vec2_t() {}
 
@@ -621,6 +627,7 @@ private:
 
 	typedef vec2_t<T> vec2;
 	typedef vec3_t<T> vec3;
+	typedef vec4_t<T> vec4;
 
 
 public:
@@ -672,6 +679,8 @@ public:
 
 	template<typename T2, typename T3> vec3_t(const vec2_t<T2> &xy, const T3 &z = T3(0)) : x(T(xy.x)), y(T(xy.y)), z(T(z)) {}
 	template<typename T2, typename T3> vec3_t(const T2 &x, const vec2_t<T3> &yz) : x(T(x)), y(T(yz.x)), z(T(yz.y)) {}
+
+	template<typename T2> vec3_t(const vec4_t<T2> &v);
 
 	~vec3_t() {}
 
@@ -1534,6 +1543,8 @@ private:
 	typedef vec2_t<T> vec2;
 
 	typedef mat2_t<T> mat2;
+	typedef mat3_t<T> mat3;
+	typedef mat4_t<T> mat4;
 
 
 public:
@@ -1584,6 +1595,9 @@ public:
 			vec2(c, d)
 		);
 	}
+
+	template<typename T2> mat2_t(const mat3_t<T2> &m);
+	template<typename T2> mat2_t(const mat4_t<T2> &m);
 
 	~mat2_t() {}
 
@@ -1830,6 +1844,7 @@ private:
 
 	typedef mat2_t<T> mat2;
 	typedef mat3_t<T> mat3;
+	typedef mat4_t<T> mat4;
 
 
 public:
@@ -1886,6 +1901,8 @@ public:
 			vec3(g, h, i)
 		);
 	}
+
+	template<typename T2> mat3_t(const mat4_t<T2> &m);
 
 	~mat3_t() {}
 
@@ -2844,9 +2861,9 @@ public:
 
 	mat4& lookAt(const vec3 &eye, const vec3 &at, const vec3 &up = vec3(T(0), T(1), T(0)))
 	{
-		vec3 z_axis = (eye - at).normalize();
-		vec3 x_axis = up.cross(z_axis).normalize();
-		vec3 y_axis = z_axis.cross(x_axis);
+		const vec3 z_axis = (eye - at).normalize();
+		const vec3 x_axis = up.cross(z_axis).normalize();
+		const vec3 y_axis = z_axis.cross(x_axis);
 
 		return ((*this) *= mat4(
 			x_axis.x, y_axis.x, z_axis.x, T(0),
@@ -3157,6 +3174,24 @@ template<typename T> const vec2_t<T> vec2_t<T>::right = vec2_t<T>(T(1), T(0));
 
 #pragma endregion
 
+#pragma region Constructors
+
+template<typename T>
+template<typename T2>
+vec2_t<T>::vec2_t(const vec3_t<T2> &v) : x(T(v.x)), y(T(v.y))
+{
+
+}
+
+template<typename T>
+template<typename T2>
+vec2_t<T>::vec2_t(const vec4_t<T2> &v) : x(T(v.x)), y(T(v.y))
+{
+
+}
+
+#pragma endregion
+
 #pragma region Comparison Operators
 
 template<typename T> inline bool vec2_t<T>::operator==(const vec2 &rhs) const
@@ -3363,6 +3398,17 @@ template<typename T> const vec3_t<T> vec3_t<T>::backward = vec3_t<T>(T(0), T(0),
 
 #pragma endregion
 
+#pragma region Constructors
+
+template<typename T>
+template<typename T2>
+vec3_t<T>::vec3_t(const vec4_t<T2> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z))
+{
+
+}
+
+#pragma endregion
+
 #pragma region Comparison Operators
 
 template<typename T> inline bool vec3_t<T>::operator==(const vec3 &rhs) const
@@ -3557,6 +3603,12 @@ STATIC_ASSERT(sizeof(vec3_t<unsigned long long>) == (sizeof(unsigned long long) 
 
 template<typename T> const vec4_t<T> vec4_t<T>::zero = vec4_t<T>(T(0), T(0), T(0), T(0));
 template<typename T> const vec4_t<T> vec4_t<T>::one = vec4_t<T>(T(1), T(1), T(1), T(1));
+
+#pragma endregion
+
+#pragma region Constructors
+
+
 
 #pragma endregion
 
@@ -3757,6 +3809,26 @@ template<typename T> const mat2_t<T> mat2_t<T>::identity = mat2_t<T>(T(1));
 
 #pragma endregion
 
+#pragma region Constructors
+
+template<typename T>
+template<typename T2>
+mat2_t<T>::mat2_t(const mat3_t<T2> &v)
+{
+	columns[0] = vec2(v.columns[0]);
+	columns[1] = vec2(v.columns[1]);
+}
+
+template<typename T>
+template<typename T2>
+mat2_t<T>::mat2_t(const mat4_t<T2> &v)
+{
+	columns[0] = vec2(v.columns[0]);
+	columns[1] = vec2(v.columns[1]);
+}
+
+#pragma endregion
+
 #pragma region Comparison Operators
 
 template<typename T> inline bool mat2_t<T>::operator==(const mat2_t &rhs) const
@@ -3800,6 +3872,19 @@ template<typename T> const mat3_t<T> mat3_t<T>::identity = mat3_t<T>(T(1));
 
 #pragma endregion
 
+#pragma region Constructors
+
+template<typename T>
+template<typename T2>
+mat3_t<T>::mat3_t(const mat4_t<T2> &v)
+{
+	columns[0] = vec3(v.columns[0]);
+	columns[1] = vec3(v.columns[1]);
+	columns[2] = vec3(v.columns[2]);
+}
+
+#pragma endregion
+
 #pragma region Comparison Operators
 
 template<typename T> inline bool mat3_t<T>::operator==(const mat3_t &rhs) const
@@ -3840,6 +3925,12 @@ template<> inline bool mat3_t<double>::operator==(const mat3_t<double> &rhs) con
 
 template<typename T> const mat4_t<T> mat4_t<T>::zero = mat4_t<T>(T(0));
 template<typename T> const mat4_t<T> mat4_t<T>::identity = mat4_t<T>(T(1));
+
+#pragma endregion
+
+#pragma region Constructors
+
+
 
 #pragma endregion
 
