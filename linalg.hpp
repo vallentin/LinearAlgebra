@@ -5,7 +5,7 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: June 19, 2016
+// Last Modified: June 23, 2016
 
 #ifndef LINEAR_ALGEBRA_HPP
 #define LINEAR_ALGEBRA_HPP
@@ -2173,6 +2173,128 @@ public:
 
 public:
 
+	static mat4 translation(const vec3 &translation)
+	{
+		return mat4(
+			vec4(T(1), T(0), T(0), T(0)),
+			vec4(T(0), T(1), T(0), T(0)),
+			vec4(T(0), T(0), T(1), T(0)),
+			vec4(translation.x, translation.y, translation.z, T(1))
+		);
+	}
+
+	inline mat4 translation(const T tx, const T ty, const T tz = T(0))
+	{
+		return mat4::translation(vec3(tx, ty, tz));
+	}
+
+
+	static mat4 scaling(const vec3 &scaling)
+	{
+		return mat4(
+			vec4(scaling.x, T(0), T(0), T(0)),
+			vec4(T(0), scaling.y, T(0), T(0)),
+			vec4(T(0), T(0), scaling.z, T(0)),
+			vec4(T(0), T(0), T(0), T(1))
+		);
+	}
+
+	static mat4 scaling(const T sx, const T sy, const T sz = T(1))
+	{
+		return mat4::scaling(vec3(sx, sy, sz));
+	}
+
+
+	static mat4 perspective(const T fov, const T aspect, const T zNear, const T zFar)
+	{
+		const T fovRad = fov * T(LINALG_DEG2RAD);
+
+		const T range = tan(fovRad * T(0.5)) * zNear;
+		const T sx = (zNear * T(2)) / (range * aspect + range * aspect);
+		const T sy = zNear / range;
+		const T sz = -(zFar + zNear) / (zFar - zNear);
+		const T pz = -(zFar * zNear * T(2)) / (zFar - zNear);
+
+		return mat4(
+			vec4(sx, T(0), T(0), T(0)),
+			vec4(T(0), sy, T(0), T(0)),
+			vec4(T(0), T(0), sz, T(-1)),
+			vec4(T(0), T(0), pz, T(0))
+		);
+	}
+
+	static mat4 perspective(const T fov, const T width, const T height, const T zNear, const T zFar)
+	{
+		return perspective(fov, width / height, zNear, zFar);
+	}
+
+
+	static mat4 orthographic(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
+	{
+		return mat4(
+			vec4((T(2) / (right - left)), T(0), T(0), T(0)),
+			vec4(T(0), (T(2) / (top - bottom)), T(0), T(0)),
+			vec4(T(0), T(0), (T(-2) / (zFar - zNear)), T(0)),
+			vec4(-((right + left) / (right - left)), -((top + bottom) / (top - bottom)), -((zFar + zNear) / (zFar - zNear)), T(1))
+		);
+	}
+
+
+	static mat4 frustum(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
+	{
+		return mat4::orthographic(left, right, bottom, top, zNear, zFar);
+	}
+
+
+	static mat4 viewport(const T x, const T y, const T width, const T height)
+	{
+		const T halfWidth = width * T(0.5);
+		const T halfHeight = height * T(0.5);
+
+		// This is only correct when glDepthRangef(0.0f, 1.0f)
+		const T zNear = T(0);
+		const T zFar = T(1);
+
+		return mat4(
+			halfWidth, T(0), T(0), T(0),
+			T(0), halfHeight, T(0), T(0),
+			T(0), T(0), (zFar - zNear) * T(0.5), T(0),
+			x + halfWidth, y + halfHeight, (zNear + zFar) * T(0.5), T(1)
+		);
+	}
+
+
+	static mat4 lookAt(const vec3 &eye, const vec3 &target, const vec3 &up = vec3(T(0), T(1), T(0)))
+	{
+		const vec3 forward = normalize(target - eye);
+		const vec3 right = normalize(cross(up, forward));
+		const vec3 upNew = cross(forward, right);
+
+		return mat4(
+			right.x, right.y, right.z, T(0),
+			upNew.x, upNew.y, upNew.z, T(0),
+			forward.x, forward.y, forward.z, T(0),
+			eye.x, eye.y, eye.z, T(1)
+		);
+	}
+
+	static mat4 lookDirection(const vec3 &direction, const vec3 &up = vec3(T(0), T(1), T(0)))
+	{
+		const vec3 forward = direction;
+		const vec3 right = normalize(cross(up, forward));
+		const vec3 upNew = cross(forward, right);
+
+		return mat4(
+			right.x, right.y, right.z, T(0),
+			upNew.x, upNew.y, upNew.z, T(0),
+			forward.x, forward.y, forward.z, T(0),
+			T(0), T(0), T(0), T(1)
+		);
+	}
+
+
+public:
+
 	vec4 columns[4];
 
 
@@ -2627,12 +2749,7 @@ public:
 
 	mat4& translate(const vec3 &translation)
 	{
-		return ((*this) *= mat4(
-			vec4(T(1), T(0), T(0), T(0)),
-			vec4(T(0), T(1), T(0), T(0)),
-			vec4(T(0), T(0), T(1), T(0)),
-			vec4(translation.x, translation.y, translation.z, T(1))
-		));
+		return ((*this) *= mat4::translation(translation));
 	}
 	friend inline mat4 translate(const mat4 &m, const vec3 &translation) { return mat4(m).translate(translation); }
 
@@ -2642,12 +2759,7 @@ public:
 
 	mat4& scale(const vec3 &scaling)
 	{
-		return ((*this) *= mat4(
-			vec4(scaling.x, T(0), T(0), T(0)),
-			vec4(T(0), scaling.y, T(0), T(0)),
-			vec4(T(0), T(0), scaling.z, T(0)),
-			vec4(T(0), T(0), T(0), T(1))
-		));
+		return ((*this) *= mat4::scaling(scaling));
 	}
 	friend inline mat4 scale(const mat4 &m, const vec3 &scaling) { return mat4(m).scale(scaling); }
 
@@ -2804,74 +2916,6 @@ public:
 
 	inline mat4& skewYDegrees(const T degrees) { return skewY(degrees * T(LINALG_DEG2RAD)); }
 	friend inline mat4 skewYDegrees(const mat4 &m, const T degrees) { return mat4(m).skewYDegrees(degrees); }
-
-
-	mat4& perspective(const T fov, const T aspect, const T zNear, const T zFar)
-	{
-		const T fovRads = fov * T(LINALG_DEG2RAD);
-
-		const T range = tan(fovRads * T(0.5)) * zNear;
-		const T sx = (zNear * T(2)) / (range * aspect + range * aspect);
-		const T sy = zNear / range;
-		const T sz = -(zFar + zNear) / (zFar - zNear);
-		const T pz = -(zFar * zNear * T(2)) / (zFar - zNear);
-
-		return ((*this) *= mat4(
-			vec4(sx, T(0), T(0), T(0)),
-			vec4(T(0), sy, T(0), T(0)),
-			vec4(T(0), T(0), sz, T(-1)),
-			vec4(T(0), T(0), pz, T(0))
-		));
-	}
-
-
-	mat4& orthographic(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
-	{
-		return ((*this) *= mat4(
-			vec4((T(2) / (right - left)), T(0), T(0), T(0)),
-			vec4(T(0), (T(2) / (top - bottom)), T(0), T(0)),
-			vec4(T(0), T(0), (T(-2) / (zFar - zNear)), T(0)),
-			vec4(-((right + left) / (right - left)), -((top + bottom) / (top - bottom)), -((zFar + zNear) / (zFar - zNear)), T(1))
-		));
-	}
-
-	mat4& frustum(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
-	{
-		return (*this).orthographic(left, right, bottom, top, zNear, zFar);
-	}
-
-
-	mat4& viewport(const T x, const T y, const T width, const T height)
-	{
-		const T half_width = width * T(0.5);
-		const T half_height = height * T(0.5);
-
-		// This is only correct when glDepthRangef(0.0f, 1.0f)
-		const T zNear = T(0);
-		const T zFar = T(1);
-
-		return ((*this) *= mat4(
-			half_width, T(0), T(0), T(0),
-			T(0), half_height, T(0), T(0),
-			T(0), T(0), (zFar - zNear) * T(0.5), T(0),
-			x + half_width, y + half_height, (zNear + zFar) * T(0.5), T(1)
-		));
-	}
-
-
-	mat4& lookAt(const vec3 &eye, const vec3 &at, const vec3 &up = vec3(T(0), T(1), T(0)))
-	{
-		const vec3 z_axis = (eye - at).normalize();
-		const vec3 x_axis = up.cross(z_axis).normalize();
-		const vec3 y_axis = z_axis.cross(x_axis);
-
-		return ((*this) *= mat4(
-			x_axis.x, y_axis.x, z_axis.x, T(0),
-			x_axis.y, y_axis.y, z_axis.y, T(0),
-			x_axis.z, y_axis.z, z_axis.z, T(0),
-			-x_axis.dot(eye), -y_axis.dot(eye), -z_axis.dot(eye), T(1)
-		));
-	}
 
 
 	inline vec3 getTranslation() const

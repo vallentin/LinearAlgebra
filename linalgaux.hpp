@@ -2,6 +2,7 @@
 // Author: Christian Vallentin <mail@vallentinsource.com>
 // Website: http://vallentinsource.com
 // Repository: https://github.com/MrVallentin/LinearAlgebra
+// License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
 // Last Modified: June 07, 2016
