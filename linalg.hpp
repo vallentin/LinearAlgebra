@@ -5,7 +5,7 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: June 23, 2016
+// Last Modified: June 27, 2016
 
 #ifndef LINEAR_ALGEBRA_HPP
 #define LINEAR_ALGEBRA_HPP
@@ -215,15 +215,14 @@ public:
 #pragma region Member Access Operators
 
 	inline T& operator[](const int index) { return (reinterpret_cast<T*>(this))[index]; }
-	// inline T operator[](const int index) const { return (reinterpret_cast<T*>(this))[index]; }
 	inline T operator[](const int index) const { return ((T*) this)[index]; }
 
 #pragma endregion
 
 #pragma region Arithmetic Operators
 
-	vec2 operator+() const { return vec2(+x, +y); }
-	vec2 operator-() const { return vec2(-x, -y); }
+	vec2 operator+() const { return vec2(+this->x, +this->y); }
+	vec2 operator-() const { return vec2(-this->x, -this->y); }
 
 	friend vec2 operator+(const vec2 &lhs, const vec2 &rhs) { return vec2((lhs.x + rhs.x), (lhs.y + rhs.y)); }
 	friend vec2 operator-(const vec2 &lhs, const vec2 &rhs) { return vec2((lhs.x - rhs.x), (lhs.y - rhs.y)); }
@@ -251,8 +250,8 @@ public:
 
 	vec2& operator++() // Prefix
 	{
-		++x;
-		++y;
+		++this->x;
+		++this->y;
 
 		return (*this);
 	}
@@ -260,8 +259,8 @@ public:
 
 	vec2& operator--() // Prefix
 	{
-		--x;
-		--y;
+		--this->x;
+		--this->y;
 
 		return (*this);
 	}
@@ -302,11 +301,8 @@ public:
 
 	vec2& operator=(const vec2 &rhs)
 	{
-		// memcpy(this, &rhs, sizeof(rhs));
-		// for (int i = 0; i < 2; i++) (*this)[i] = rhs[i];
-
-		x = rhs.x;
-		y = rhs.y;
+		this->x = rhs.x;
+		this->y = rhs.y;
 
 		return (*this);
 	}
@@ -314,8 +310,8 @@ public:
 	template<typename T2>
 	vec2& operator=(const vec2_t<T2> &rhs)
 	{
-		x = T(rhs.x);
-		y = T(rhs.y);
+		this->x = T(rhs.x);
+		this->y = T(rhs.y);
 
 		return (*this);
 	}
@@ -365,8 +361,8 @@ public:
 	inline operator vec2_t<T2>() const
 	{
 		return vec2_t<T2>(
-			static_cast<T2>(x),
-			static_cast<T2>(y)
+			static_cast<T2>(this->x),
+			static_cast<T2>(this->y)
 		);
 	}
 
@@ -378,13 +374,11 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const vec2 &rhs)
 	{
-		// return (stream << "vec2 (" << rhs.x << ", " << rhs.y << ")");
 		return (stream << "vec2 {x=" << rhs.x << ", y=" << rhs.y << "}");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const vec2 &rhs)
 	{
-		// return (stream << L"vec2 (" << rhs.x << L", " << rhs.y << L")");
 		return (stream << L"vec2 {x=" << rhs.x << L", y=" << rhs.y << L"}");
 	}
 
@@ -398,7 +392,7 @@ public:
 
 	inline T dot(const vec2 &rhs) const
 	{
-		return (x * rhs.x + y * rhs.y);
+		return (this->x * rhs.x + this->y * rhs.y);
 	}
 	friend inline T dot(const vec2 &lhs, const vec2 &rhs) { return lhs.dot(rhs); }
 
@@ -406,21 +400,14 @@ public:
 	vec2 cross(const vec2 &rhs) const
 	{
 		return vec2(
-			((y * rhs.z) - (z * rhs.y)),
-			((z * rhs.x) - (x * rhs.z))
+			((this->y * rhs.z) - (this->z * rhs.y)),
+			((this->z * rhs.x) - (this->x * rhs.z))
 		);
 	}
 	friend inline vec2 cross(const vec2 &lhs, const vec2 &rhs) { return lhs.cross(rhs); }
 
 
-	// inline T magnitudeSquared() const { return (x * x + y * y); }
-	// friend inline T magnitudeSquared(const vec2 &lhs) { return lhs.magnitudeSquared(); }
-
-	// inline T magnitude() const { return sqrt(magnitudeSquared()); }
-	// friend inline T magnitude(const vec2 &lhs) { return lhs.magnitude(); }
-
-
-	inline T lengthSquared() const { return (x * x + y * y); }
+	inline T lengthSquared() const { return (this->x * this->x + this->y * this->y); }
 	friend inline T lengthSquared(const vec2 &lhs) { return lhs.lengthSquared(); }
 
 	inline T length() const { return sqrt(lengthSquared()); }
@@ -440,7 +427,6 @@ public:
 
 	T angle(const vec2 &rhs) const
 	{
-		// return acos(dot(rhs) / (length() * rhs.length()));
 		return (dot(rhs) / (length() * rhs.length()));
 	}
 	friend inline T angle(const vec2 &lhs, const vec2 &rhs) { return lhs.angle(rhs); }
@@ -471,9 +457,6 @@ public:
 	// Calculates the reflection vector from entering ray direction a and surface normal b
 	inline vec2 reflect(const vec2 &b) const
 	{
-		// return a - TYPE(2.0) * vec2::project(a, b);
-		// return (TYPE(2.0) * vec2::project(a, b) - a);
-
 		return (T(2) * project(b) - (*this));
 	}
 	friend inline vec2 reflect(const vec2 &a, const vec2 &b) { return a.reflect(b); }
@@ -491,8 +474,8 @@ public:
 		const T c = cos(theta), s = sin(theta);
 
 		return vec2(
-			(c * x - s * y),
-			(s * x + c * y)
+			(c * this->x - s * this->y),
+			(s * this->x + c * this->y)
 		);
 	}
 	friend inline vec2 rotate(const vec2 &a, const T theta) { return a.rotate(theta); }
@@ -524,15 +507,15 @@ public:
 
 #pragma region
 
-	inline vec2 abs() const { return vec2(abs(x), abs(y), abs(z)); }
+	inline vec2 abs() const { return vec2(abs(this->x), abs(this->y), abs(this->z)); }
 	friend inline vec2 abs(const vec2 &v) { return v.abs(); }
 
 
 	inline vec2 max(const vec2 &rhs) const
 	{
 		return vec2(
-			((x > rhs.x) ? x : rhs.x),
-			((y > rhs.y) ? y : rhs.y)
+			((this->x > rhs.x) ? this->x : rhs.x),
+			((this->y > rhs.y) ? this->y : rhs.y)
 		);
 	}
 	friend inline vec2 max(const vec2 &lhs, const vec2 &rhs) { return lhs.max(rhs); }
@@ -540,8 +523,8 @@ public:
 	inline vec2 min(const vec2 &rhs) const
 	{
 		return vec2(
-			((x < rhs.x) ? x : rhs.x),
-			((y < rhs.y) ? y : rhs.y)
+			((this->x < rhs.x) ? this->x : rhs.x),
+			((this->y < rhs.y) ? this->y : rhs.y)
 		);
 	}
 	friend inline vec2 min(const vec2 &lhs, const vec2 &rhs) { return lhs.min(rhs); }
@@ -589,8 +572,8 @@ public:
 	inline const vec2 signum() const
 	{
 		return vec2(
-			((x < T(0)) ? T(-1) : ((x > T(0)) ? T(1) : T(0))),
-			((y < T(0)) ? T(-1) : ((y > T(0)) ? T(1) : T(0)))
+			((this->x < T(0)) ? T(-1) : ((this->x > T(0)) ? T(1) : T(0))),
+			((this->y < T(0)) ? T(-1) : ((this->y > T(0)) ? T(1) : T(0)))
 		);
 	}
 	friend inline vec2 signum(const vec2 &v) { return v.signum(); }
@@ -690,15 +673,14 @@ public:
 #pragma region Member Access Operators
 
 	inline T& operator[](const int index) { return (reinterpret_cast<T*>(this))[index]; }
-	// inline T operator[](const int index) const { return (reinterpret_cast<T*>(this))[index]; }
 	inline T operator[](const int index) const { return ((T*) this)[index]; }
 
 #pragma endregion
 
 #pragma region Arithmetic Operators
 
-	vec3 operator+() const { return vec3(+x, +y, +z); }
-	vec3 operator-() const { return vec3(-x, -y, -z); }
+	vec3 operator+() const { return vec3(+this->x, +this->y, +this->z); }
+	vec3 operator-() const { return vec3(-this->x, -this->y, -this->z); }
 
 	friend vec3 operator+(const vec3 &lhs, const vec3 &rhs) { return vec3((lhs.x + rhs.x), (lhs.y + rhs.y), (lhs.z + rhs.z)); }
 	friend vec3 operator-(const vec3 &lhs, const vec3 &rhs) { return vec3((lhs.x - rhs.x), (lhs.y - rhs.y), (lhs.z - rhs.z)); }
@@ -726,9 +708,9 @@ public:
 
 	vec3& operator++() // Prefix
 	{
-		++x;
-		++y;
-		++z;
+		++this->x;
+		++this->y;
+		++this->z;
 
 		return (*this);
 	}
@@ -736,9 +718,9 @@ public:
 
 	vec3& operator--() // Prefix
 	{
-		--x;
-		--y;
-		--z;
+		--this->x;
+		--this->y;
+		--this->z;
 
 		return (*this);
 	}
@@ -779,12 +761,9 @@ public:
 
 	vec3& operator=(const vec3 &rhs)
 	{
-		// memcpy(this, &rhs, sizeof(rhs));
-		// for (int i = 0; i < 3; i++) (*this)[i] = rhs[i];
-
-		x = rhs.x;
-		y = rhs.y;
-		z = rhs.z;
+		this->x = rhs.x;
+		this->y = rhs.y;
+		this->z = rhs.z;
 
 		return (*this);
 	}
@@ -792,9 +771,9 @@ public:
 	template<typename T2>
 	vec3& operator=(const vec3_t<T2> &rhs)
 	{
-		x = T(rhs.x);
-		y = T(rhs.y);
-		z = T(rhs.z);
+		this->x = T(rhs.x);
+		this->y = T(rhs.y);
+		this->z = T(rhs.z);
 
 		return (*this);
 	}
@@ -844,9 +823,9 @@ public:
 	inline operator vec3_t<T2>() const
 	{
 		return vec3_t<T2>(
-			static_cast<T2>(x),
-			static_cast<T2>(y),
-			static_cast<T2>(z)
+			static_cast<T2>(this->x),
+			static_cast<T2>(this->y),
+			static_cast<T2>(this->z)
 		);
 	}
 	
@@ -858,13 +837,11 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const vec3 &rhs)
 	{
-		// return (stream << "vec3 (" << rhs.x << ", " << rhs.y << ", " << rhs.z << ")");
 		return (stream << "vec3 {x=" << rhs.x << ", y=" << rhs.y << ", z=" << rhs.z << "}");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const vec3 &rhs)
 	{
-		// return (stream << L"vec3 (" << rhs.x << L", " << rhs.y << L", " << rhs.z << L")");
 		return (stream << L"vec3 {x=" << rhs.x << L", y=" << rhs.y << L", z=" << rhs.z << L"}");
 	}
 
@@ -878,7 +855,7 @@ public:
 
 	inline T dot(const vec3 &rhs) const
 	{
-		return (x * rhs.x + y * rhs.y + z * rhs.z);
+		return (this->x * rhs.x + this->y * rhs.y + this->z * rhs.z);
 	}
 	friend inline T dot(const vec3 &lhs, const vec3 &rhs) { return lhs.dot(rhs); }
 
@@ -886,22 +863,15 @@ public:
 	vec3 cross(const vec3 &rhs) const
 	{
 		return vec3(
-			((y * rhs.z) - (z * rhs.y)),
-			((z * rhs.x) - (x * rhs.z)),
-			((x * rhs.y) - (y * rhs.x))
+			((this->y * rhs.z) - (this->z * rhs.y)),
+			((this->z * rhs.x) - (this->x * rhs.z)),
+			((this->x * rhs.y) - (this->y * rhs.x))
 		);
 	}
 	friend inline vec3 cross(const vec3 &lhs, const vec3 &rhs) { return lhs.cross(rhs); }
 
 
-	// inline T magnitudeSquared() const { return (x * x + y * y + z * z); }
-	// friend inline T magnitudeSquared(const vec3 &lhs) { return lhs.magnitudeSquared(); }
-
-	// inline T magnitude() const { return sqrt(magnitudeSquared()); }
-	// friend inline T magnitude(const vec3 &lhs) { return lhs.magnitude(); }
-
-
-	inline T lengthSquared() const { return (x * x + y * y + z * z); }
+	inline T lengthSquared() const { return (this->x * this->x + this->y * this->y + this->z * this->z); }
 	friend inline T lengthSquared(const vec3 &lhs) { return lhs.lengthSquared(); }
 
 	inline T length() const { return sqrt(lengthSquared()); }
@@ -921,7 +891,6 @@ public:
 
 	T angle(const vec3 &rhs) const
 	{
-		// return acos(dot(rhs) / (length() * rhs.length()));
 		return (dot(rhs) / (length() * rhs.length()));
 	}
 	friend inline T angle(const vec3 &lhs, const vec3 &rhs) { return lhs.angle(rhs); }
@@ -952,9 +921,6 @@ public:
 	// Calculates the reflection vector from entering ray direction a and surface normal b
 	inline vec3 reflect(const vec3 &b) const
 	{
-		// return a - TYPE(2.0) * vec3::project(a, b);
-		// return (TYPE(2.0) * vec3::project(a, b) - a);
-
 		return (T(2) * project(b) - (*this));
 	}
 	friend inline vec3 reflect(const vec3 &a, const vec3 &b) { return a.reflect(b); }
@@ -993,16 +959,16 @@ public:
 
 #pragma region
 
-	inline vec3 abs() const { return vec3(abs(x), abs(y), abs(z)); }
+	inline vec3 abs() const { return vec3(abs(this->x), abs(this->y), abs(this->z)); }
 	friend inline vec3 abs(const vec3 &v) { return v.abs(); }
 
 
 	inline vec3 max(const vec3 &rhs) const
 	{
 		return vec3(
-			((x > rhs.x) ? x : rhs.x),
-			((y > rhs.y) ? y : rhs.y),
-			((z > rhs.z) ? z : rhs.z)
+			((this->x > rhs.x) ? this->x : rhs.x),
+			((this->y > rhs.y) ? this->y : rhs.y),
+			((this->z > rhs.z) ? this->z : rhs.z)
 		);
 	}
 	friend inline vec3 max(const vec3 &lhs, const vec3 &rhs) { return lhs.max(rhs); }
@@ -1010,9 +976,9 @@ public:
 	inline vec3 min(const vec3 &rhs) const
 	{
 		return vec3(
-			((x < rhs.x) ? x : rhs.x),
-			((y < rhs.y) ? y : rhs.y),
-			((z < rhs.z) ? z : rhs.z)
+			((this->x < rhs.x) ? this->x : rhs.x),
+			((this->y < rhs.y) ? this->y : rhs.y),
+			((this->z < rhs.z) ? this->z : rhs.z)
 		);
 	}
 	friend inline vec3 min(const vec3 &lhs, const vec3 &rhs) { return lhs.min(rhs); }
@@ -1148,15 +1114,14 @@ public:
 #pragma region Member Access Operators
 
 	inline T& operator[](const int index) { return (reinterpret_cast<T*>(this))[index]; }
-	// inline T operator[](const int index) const { return (reinterpret_cast<T*>(this))[index]; }
 	inline T operator[](const int index) const { return ((T*) this)[index]; }
 
 #pragma endregion
 
 #pragma region Arithmetic Operators
 
-	vec4 operator+() const { return vec4(+x, +y, +z, +w); }
-	vec4 operator-() const { return vec4(-x, -y, -z, -w); }
+	vec4 operator+() const { return vec4(+this->x, +this->y, +this->z, +this->w); }
+	vec4 operator-() const { return vec4(-this->x, -this->y, -this->z, -this->w); }
 
 	friend vec4 operator+(const vec4 &lhs, const vec4 &rhs) { return vec4((lhs.x + rhs.x), (lhs.y + rhs.y), (lhs.z + rhs.z), (lhs.w + rhs.w)); }
 	friend vec4 operator-(const vec4 &lhs, const vec4 &rhs) { return vec4((lhs.x - rhs.x), (lhs.y - rhs.y), (lhs.z - rhs.z), (lhs.w - rhs.w)); }
@@ -1184,10 +1149,10 @@ public:
 
 	vec4& operator++() // Prefix
 	{
-		++x;
-		++y;
-		++z;
-		++w;
+		++this->x;
+		++this->y;
+		++this->z;
+		++this->w;
 
 		return (*this);
 	}
@@ -1195,10 +1160,10 @@ public:
 
 	vec4& operator--() // Prefix
 	{
-		--x;
-		--y;
-		--z;
-		--w;
+		--this->x;
+		--this->y;
+		--this->z;
+		--this->w;
 
 		return (*this);
 	}
@@ -1239,13 +1204,10 @@ public:
 
 	vec4& operator=(const vec4 &rhs)
 	{
-		// memcpy(this, &rhs, sizeof(rhs));
-		// for (int i = 0; i < 4; i++) (*this)[i] = rhs[i];
-
-		x = rhs.x;
-		y = rhs.y;
-		z = rhs.z;
-		w = rhs.w;
+		this->x = rhs.x;
+		this->y = rhs.y;
+		this->z = rhs.z;
+		this->w = rhs.w;
 
 		return (*this);
 	}
@@ -1253,10 +1215,10 @@ public:
 	template<typename T2>
 	vec4& operator=(const vec4_t<T2> &rhs)
 	{
-		x = T(rhs.x);
-		y = T(rhs.y);
-		z = T(rhs.z);
-		w = T(rhs.w);
+		this->x = T(rhs.x);
+		this->y = T(rhs.y);
+		this->z = T(rhs.z);
+		this->w = T(rhs.w);
 
 		return (*this);
 	}
@@ -1306,10 +1268,10 @@ public:
 	inline operator vec4_t<T2>() const
 	{
 		return vec4_t<T2>(
-			static_cast<T2>(x),
-			static_cast<T2>(y),
-			static_cast<T2>(z),
-			static_cast<T2>(w)
+			static_cast<T2>(this->x),
+			static_cast<T2>(this->y),
+			static_cast<T2>(this->z),
+			static_cast<T2>(this->w)
 		);
 	}
 	
@@ -1321,13 +1283,11 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const vec4 &rhs)
 	{
-		// return (stream << "vec4 (" << rhs.x << ", " << rhs.y << ", " << rhs.z << ", " << rhs.w << ")");
 		return (stream << "vec4 {x=" << rhs.x << ", y=" << rhs.y << ", z=" << rhs.z << ", w=" << rhs.w << "}");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const vec4 &rhs)
 	{
-		// return (stream << L"vec4 (" << rhs.x << L", " << rhs.y << L", " << rhs.z << L", " << rhs.w << L")");
 		return (stream << L"vec4 {x=" << rhs.x << L", y=" << rhs.y << L", z=" << rhs.z << L", w=" << rhs.w << L"}");
 	}
 
@@ -1341,22 +1301,12 @@ public:
 
 	inline T dot(const vec4 &rhs) const
 	{
-		return (x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w);
+		return (this->x * rhs.x + this->y * rhs.y + this->z * rhs.z + this->w * rhs.w);
 	}
 	friend inline T dot(const vec4 &lhs, const vec4 &rhs) { return lhs.dot(rhs); }
 
 
-	// A 4D vector doesn't per se have a cross product, not a feasible one at least
-
-
-	// inline T magnitudeSquared() const { return (x * x + y * y + z * z + w * w); }
-	// friend inline T magnitudeSquared(const vec4 &lhs) { return lhs.magnitudeSquared(); }
-
-	// inline T magnitude() const { return sqrt(magnitudeSquared()); }
-	// friend inline T magnitude(const vec4 &lhs) { return lhs.magnitude(); }
-
-
-	inline T lengthSquared() const { return (x * x + y * y + z * z + w * w); }
+	inline T lengthSquared() const { return (this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w); }
 	friend inline T lengthSquared(const vec4 &lhs) { return lhs.lengthSquared(); }
 
 	inline T length() const { return sqrt(lengthSquared()); }
@@ -1376,7 +1326,6 @@ public:
 
 	T angle(const vec4 &rhs) const
 	{
-		// return acos(dot(rhs) / (length() * rhs.length()));
 		return (dot(rhs) / (length() * rhs.length()));
 	}
 	friend inline T angle(const vec4 &lhs, const vec4 &rhs) { return lhs.angle(rhs); }
@@ -1408,17 +1357,17 @@ public:
 
 #pragma region
 
-	inline vec4 abs() const { return vec4(abs(x), abs(y), abs(z), abs(w)); }
+	inline vec4 abs() const { return vec4(abs(this->x), abs(this->y), abs(this->z), abs(this->w)); }
 	friend inline vec4 abs(const vec4 &v) { return v.abs(); }
 
 
 	inline vec4 max(const vec4 &rhs) const
 	{
 		return vec4(
-			((x > rhs.x) ? x : rhs.x),
-			((y > rhs.y) ? y : rhs.y),
-			((z > rhs.z) ? z : rhs.z),
-			((w > rhs.w) ? w : rhs.w)
+			((this->x > rhs.x) ? this->x : rhs.x),
+			((this->y > rhs.y) ? this->y : rhs.y),
+			((this->z > rhs.z) ? this->z : rhs.z),
+			((this->w > rhs.w) ? this->w : rhs.w)
 		);
 	}
 	friend inline vec4 max(const vec4 &lhs, const vec4 &rhs) { return lhs.max(rhs); }
@@ -1426,10 +1375,10 @@ public:
 	inline vec4 min(const vec4 &rhs) const
 	{
 		return vec4(
-			((x < rhs.x) ? x : rhs.x),
-			((y < rhs.y) ? y : rhs.y),
-			((z < rhs.z) ? z : rhs.z),
-			((w < rhs.w) ? w : rhs.w)
+			((this->x < rhs.x) ? this->x : rhs.x),
+			((this->y < rhs.y) ? this->y : rhs.y),
+			((this->z < rhs.z) ? this->z : rhs.z),
+			((this->w < rhs.w) ? this->w : rhs.w)
 		);
 	}
 	friend inline vec4 min(const vec4 &lhs, const vec4 &rhs) { return lhs.min(rhs); }
@@ -1477,10 +1426,10 @@ public:
 	inline const vec4 signum() const
 	{
 		return vec4(
-			((x < T(0)) ? T(-1) : ((x > T(0)) ? T(1) : T(0))),
-			((y < T(0)) ? T(-1) : ((y > T(0)) ? T(1) : T(0))),
-			((z < T(0)) ? T(-1) : ((z > T(0)) ? T(1) : T(0))),
-			((w < T(0)) ? T(-1) : ((w > T(0)) ? T(1) : T(0)))
+			((this->x < T(0)) ? T(-1) : ((this->x > T(0)) ? T(1) : T(0))),
+			((this->y < T(0)) ? T(-1) : ((this->y > T(0)) ? T(1) : T(0))),
+			((this->z < T(0)) ? T(-1) : ((this->z > T(0)) ? T(1) : T(0))),
+			((this->w < T(0)) ? T(-1) : ((this->w > T(0)) ? T(1) : T(0)))
 		);
 	}
 	friend inline vec4 signum(const vec4 &v) { return v.signum(); }
@@ -1562,22 +1511,22 @@ public:
 
 	mat2_t(const T mainDiagonalValue = T(1))
 	{
-		columns[0] = vec2(mainDiagonalValue, T(0));
-		columns[1] = vec2(T(0), mainDiagonalValue);
+		this->columns[0] = vec2(mainDiagonalValue, T(0));
+		this->columns[1] = vec2(T(0), mainDiagonalValue);
 	}
 
 	mat2_t(
 		const vec2 &column1, // first column
 		const vec2 &column2) // second column
 	{
-		columns[0] = column1;
-		columns[1] = column2;
+		this->columns[0] = column1;
+		this->columns[1] = column2;
 	}
 
 	mat2_t(const vec2 columns[2])
 	{
-		columns[0] = column1;
-		columns[1] = column2;
+		this->columns[0] = columns[0];
+		this->columns[1] = columns[1];
 	}
 
 	mat2_t(const T values[2 * 2])
@@ -1708,7 +1657,7 @@ public:
 	mat2& operator=(const mat2 &rhs)
 	{
 		for (int i = 0; i < 2; i++)
-			columns[i] = rhs[i];
+			this->columns[i] = rhs[i];
 
 		return (*this);
 	}
@@ -1717,7 +1666,7 @@ public:
 	mat2& operator=(const mat2_t<T2> &rhs)
 	{
 		for (int i = 0; i < 2; i++)
-			columns[i] = vec2(rhs[i]);
+			this->columns[i] = vec2(rhs[i]);
 
 		return (*this);
 	}
@@ -1743,8 +1692,8 @@ public:
 	inline operator mat2_t<T2>() const
 	{
 		return mat2_t<T2>(
-			static_cast<vec2_t<T2>>(columns[0]),
-			static_cast<vec2_t<T2>>(columns[1])
+			static_cast<vec2_t<T2>>(this->columns[0]),
+			static_cast<vec2_t<T2>>(this->columns[1])
 		);
 	}
 
@@ -1756,18 +1705,12 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const mat2 &rhs)
 	{
-		// return (stream << "mat2 (" << rhs[0] << "," << std::endl
-		// 			   << "      " << rhs[1] << ")");
-
 		return (stream << "mat2 {" << rhs[0] << "," << std::endl
 					   << "      " << rhs[1] << "}");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const mat2 &rhs)
 	{
-		// return (stream << L"mat2 (" << rhs[0] << L"," << std::endl
-		// 			   << L"      " << rhs[1] << L")");
-
 		return (stream << L"mat2 {" << rhs[0] << L"," << std::endl
 					   << L"      " << rhs[1] << L"}");
 	}
@@ -1862,9 +1805,9 @@ public:
 
 	mat3_t(const T mainDiagonalValue = T(1))
 	{
-		columns[0] = vec3(mainDiagonalValue, T(0), T(0));
-		columns[1] = vec3(T(0), mainDiagonalValue, T(0));
-		columns[2] = vec3(T(0), T(0), mainDiagonalValue);
+		this->columns[0] = vec3(mainDiagonalValue, T(0), T(0));
+		this->columns[1] = vec3(T(0), mainDiagonalValue, T(0));
+		this->columns[2] = vec3(T(0), T(0), mainDiagonalValue);
 	}
 
 	mat3_t(
@@ -1872,16 +1815,16 @@ public:
 		const vec3 &column2, // second column
 		const vec3 &column3) // third column
 	{
-		columns[0] = column1;
-		columns[1] = column2;
-		columns[2] = column3;
+		this->columns[0] = column1;
+		this->columns[1] = column2;
+		this->columns[2] = column3;
 	}
 
 	mat3_t(const vec3 columns[3])
 	{
-		columns[0] = column1;
-		columns[1] = column2;
-		columns[2] = column3;
+		this->columns[0] = columns[0];
+		this->columns[1] = columns[1];
+		this->columns[2] = columns[2];
 	}
 
 	mat3_t(const T values[3 * 3])
@@ -2015,7 +1958,7 @@ public:
 	mat3& operator=(const mat3 &rhs)
 	{
 		for (int i = 0; i < 3; i++)
-			columns[i] = rhs[i];
+			this->columns[i] = rhs[i];
 
 		return (*this);
 	}
@@ -2024,7 +1967,7 @@ public:
 	mat3& operator=(const mat3_t<T2> &rhs)
 	{
 		for (int i = 0; i < 3; i++)
-			columns[i] = vec3(rhs[i]);
+			this->columns[i] = vec3(rhs[i]);
 
 		return (*this);
 	}
@@ -2050,9 +1993,9 @@ public:
 	inline operator mat3_t<T2>() const
 	{
 		return mat3_t<T2>(
-			static_cast<vec3_t<T2>>(columns[0]),
-			static_cast<vec3_t<T2>>(columns[1]),
-			static_cast<vec3_t<T2>>(columns[2])
+			static_cast<vec3_t<T2>>(this->columns[0]),
+			static_cast<vec3_t<T2>>(this->columns[1]),
+			static_cast<vec3_t<T2>>(this->columns[2])
 		);
 	}
 
@@ -2302,10 +2245,10 @@ public:
 
 	mat4_t(const T mainDiagonalValue = T(1))
 	{
-		columns[0] = vec4(mainDiagonalValue, T(0), T(0), T(0));
-		columns[1] = vec4(T(0), mainDiagonalValue, T(0), T(0));
-		columns[2] = vec4(T(0), T(0), mainDiagonalValue, T(0));
-		columns[3] = vec4(T(0), T(0), T(0), mainDiagonalValue);
+		this->columns[0] = vec4(mainDiagonalValue, T(0), T(0), T(0));
+		this->columns[1] = vec4(T(0), mainDiagonalValue, T(0), T(0));
+		this->columns[2] = vec4(T(0), T(0), mainDiagonalValue, T(0));
+		this->columns[3] = vec4(T(0), T(0), T(0), mainDiagonalValue);
 	}
 
 	mat4_t(
@@ -2314,18 +2257,18 @@ public:
 		const vec4 &column3, // third column
 		const vec4 &column4) // fourth column
 	{
-		columns[0] = column1;
-		columns[1] = column2;
-		columns[2] = column3;
-		columns[3] = column4;
+		this->columns[0] = column1;
+		this->columns[1] = column2;
+		this->columns[2] = column3;
+		this->columns[3] = column4;
 	}
 
 	mat4_t(const vec4 columns[4])
 	{
-		columns[0] = column1;
-		columns[1] = column2;
-		columns[2] = column3;
-		columns[3] = column4;
+		this->columns[0] = columns[0];
+		this->columns[1] = columns[1];
+		this->columns[2] = columns[2];
+		this->columns[3] = columns[3];
 	}
 
 	mat4_t(const T values[4 * 4])
@@ -2481,7 +2424,7 @@ public:
 	mat4& operator=(const mat4 &rhs)
 	{
 		for (int i = 0; i < 4; i++)
-			columns[i] = rhs[i];
+			this->columns[i] = rhs[i];
 
 		return (*this);
 	}
@@ -2490,7 +2433,7 @@ public:
 	mat4& operator=(const mat4_t<T2> &rhs)
 	{
 		for (int i = 0; i < 4; i++)
-			columns[i] = vec4(rhs[i]);
+			this->columns[i] = vec4(rhs[i]);
 
 		return (*this);
 	}
@@ -2516,10 +2459,10 @@ public:
 	inline operator mat4_t<T2>() const
 	{
 		return mat4_t<T2>(
-			static_cast<vec4_t<T2>>(columns[0]),
-			static_cast<vec4_t<T2>>(columns[1]),
-			static_cast<vec4_t<T2>>(columns[2]),
-			static_cast<vec4_t<T2>>(columns[3])
+			static_cast<vec4_t<T2>>(columns[0]columns[0]),
+			static_cast<vec4_t<T2>>(columns[0]columns[1]),
+			static_cast<vec4_t<T2>>(columns[0]columns[2]),
+			static_cast<vec4_t<T2>>(columns[0]columns[3])
 		);
 	}
 
@@ -2951,7 +2894,7 @@ public:
 	template<typename T2> quat_t(const quat_t<T2> &q) : x(T(q.x)), y(T(q.y)), z(T(q.z)), w(T(q.w)) {}
 
 	template<typename T2> quat_t(const vec4 &v) : x(T(v[0])), y(T(v[1])), z(T(v[2])), w(T(v[3])) {}
-	template<typename T2> quat_t(const vec4_t<T2> &q) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
+	template<typename T2> quat_t(const vec4_t<T2> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
 
 	template<typename T2> quat_t(const T2 &xyzw) : x(T(xyzw)), y(T(xyzw)), z(T(xyzw)), w(T(xyzw)) {}
 	template<typename T2> quat_t(const T2 &x, const T2 &y, const T2 &z, const T2 &w) : x(T(x)), y(T(y)), z(T(z)), w(T(w)) {}
@@ -2971,25 +2914,24 @@ public:
 #pragma region Member Access Operators
 
 	inline T& operator[](const int index) { return (reinterpret_cast<T*>(this))[index]; }
-	// inline T operator[](const int index) const { return (reinterpret_cast<T*>(this))[index]; }
 	inline T operator[](const int index) const { return ((T*) this)[index]; }
 
 #pragma endregion
 
 #pragma region Arithmetic Operators
 
-	quat operator+(const quat &rhs) const { return quat(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); }
-	quat operator-(const quat &rhs) const { return quat(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w); }
+	quat operator+(const quat &rhs) const { return quat(this->x + rhs.x, this->y + rhs.y, this->z + rhs.z, this->w + rhs.w); }
+	quat operator-(const quat &rhs) const { return quat(this->x - rhs.x, this->y - rhs.y, this->z - rhs.z, this->w - rhs.w); }
 
 	// Like for matrix multiplication, quaternion multiplication is non-commutative:
 	// (q1 * q2) != (q2 * q1)
 	quat operator*(const quat &rhs) const
 	{
 		return quat(
-			(w * rhs.x) + (x * rhs.w) + (y * rhs.z) - (z * rhs.y),
-			(w * rhs.y) - (x * rhs.z) + (y * rhs.w) + (z * rhs.x),
-			(w * rhs.z) + (x * rhs.y) - (y * rhs.x) + (z * rhs.w),
-			(w * rhs.w) - (x * rhs.x) - (y * rhs.y) - (z * rhs.z)
+			(this->w * rhs.x) + (this->x * rhs.w) + (this->y * rhs.z) - (this->z * rhs.y),
+			(this->w * rhs.y) - (this->x * rhs.z) + (this->y * rhs.w) + (this->z * rhs.x),
+			(this->w * rhs.z) + (this->x * rhs.y) - (this->y * rhs.x) + (this->z * rhs.w),
+			(this->w * rhs.w) - (this->x * rhs.x) - (this->y * rhs.y) - (this->z * rhs.z)
 		);
 	}
 
@@ -3007,13 +2949,10 @@ public:
 
 	quat& operator=(const quat &rhs)
 	{
-		// memcpy(this, &rhs, sizeof(rhs));
-		// for (int i = 0; i < 4; i++) (*this)[i] = rhs[i];
-
-		x = rhs.x;
-		y = rhs.y;
-		z = rhs.z;
-		w = rhs.w;
+		this->x = rhs.x;
+		this->y = rhs.y;
+		this->z = rhs.z;
+		this->w = rhs.w;
 
 		return (*this);
 	}
@@ -3021,10 +2960,10 @@ public:
 	template<typename T2>
 	vec4& operator=(const quat_t<T2> &rhs)
 	{
-		x = T(rhs.x);
-		y = T(rhs.y);
-		z = T(rhs.z);
-		w = T(rhs.w);
+		this->x = T(rhs.x);
+		this->y = T(rhs.y);
+		this->z = T(rhs.z);
+		this->w = T(rhs.w);
 
 		return (*this);
 	}
@@ -3042,10 +2981,10 @@ public:
 	inline operator quat_t<T2>() const
 	{
 		return quat_t<T2>(
-			static_cast<T2>(x),
-			static_cast<T2>(y),
-			static_cast<T2>(z),
-			static_cast<T2>(w)
+			static_cast<T2>(this->x),
+			static_cast<T2>(this->y),
+			static_cast<T2>(this->z),
+			static_cast<T2>(this->w)
 		);
 	}
 
@@ -3053,10 +2992,10 @@ public:
 	inline operator vec4_t<T2>() const
 	{
 		return vec4_t<T2>(
-			static_cast<T2>(x),
-			static_cast<T2>(y),
-			static_cast<T2>(z),
-			static_cast<T2>(w)
+			static_cast<T2>(this->x),
+			static_cast<T2>(this->y),
+			static_cast<T2>(this->z),
+			static_cast<T2>(this->w)
 		);
 	}
 
@@ -3068,13 +3007,11 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const quat &rhs)
 	{
-		// return (stream << "quat (" << rhs.x << ", " << rhs.y << ", " << rhs.z << ", " << rhs.w << ")");
 		return (stream << "quat {x=" << rhs.x << ", y=" << rhs.y << ", z=" << rhs.z << ", w=" << rhs.w << "}");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const quat &rhs)
 	{
-		// return (stream << L"quat (" << rhs.x << L", " << rhs.y << L", " << rhs.z << L", " << rhs.w << L")");
 		return (stream << L"quat {x=" << rhs.x << L", y=" << rhs.y << L", z=" << rhs.z << L", w=" << rhs.w << L"}");
 	}
 
@@ -3088,10 +3025,10 @@ public:
 	quat conjugate() const
 	{
 		return quat(
-			-x,
-			-y,
-			-z,
-			w
+			-this->x,
+			-this->y,
+			-this->z,
+			this->w
 		);
 	}
 	friend inline quat conjugate(const quat &q) { return q.conjugate(); }
@@ -3099,14 +3036,14 @@ public:
 
 	quat normalize() const
 	{
-		T norm = sqrt(x * x + y * y + z * z + w * w);
+		T norm = sqrt(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
 		norm = T(1.0) / norm;
 
 		return quat(
-			x * norm,
-			y * norm,
-			z * norm,
-			w * norm
+			this->x * norm,
+			this->y * norm,
+			this->z * norm,
+			this->w * norm
 		);
 	}
 	friend inline quat normalize(const quat &q) { return q.normalize(); }
@@ -3144,6 +3081,9 @@ public:
 	inline quat slerp(const quat &to, const quat &t) const
 	{
 		const T EPSILON = T(1E-6f);
+
+		const quat a = (*this);
+		const quat b = to;
 
 		T omega = T(0);
 		T cosom = (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w);
@@ -3240,17 +3180,17 @@ vec2_t<T>::vec2_t(const vec4_t<T2> &v) : x(T(v.x)), y(T(v.y))
 
 template<typename T> inline bool vec2_t<T>::operator==(const vec2 &rhs) const
 {
-	return ((x == rhs.x) && (y == rhs.y));
+	return ((this->x == rhs.x) && (this->y == rhs.y));
 }
 
 template<> inline bool fvec2::operator==(const fvec2 &rhs) const
 {
-	return (LINALG_FEQUAL(x, rhs.x) && LINALG_FEQUAL(y, rhs.y));
+	return (LINALG_FEQUAL(this->x, rhs.x) && LINALG_FEQUAL(this->y, rhs.y));
 }
 
 template<> inline bool dvec2::operator==(const dvec2 &rhs) const
 {
-	return (LINALG_DEQUAL(x, rhs.x) && LINALG_DEQUAL(y, rhs.y));
+	return (LINALG_DEQUAL(this->x, rhs.x) && LINALG_DEQUAL(this->y, rhs.y));
 }
 
 #pragma endregion
@@ -3292,19 +3232,19 @@ template<> inline dvec2 dvec2::normalize(const double &to) const
 template<typename T> bool vec2_t<T>::isNullVector() const
 {
 	// It's faster to just compare to 0, than to calculate the length
-	return ((x == 0) && (y == 0));
+	return ((this->x == 0) && (this->y == 0));
 }
 
 template<> bool fvec2::isNullVector() const
 {
 	// It's faster to just compare to 0, than to calculate the length
-	return (LINALG_FEQUAL(x, 0.0f) && LINALG_FEQUAL(y, 0.0f));
+	return (LINALG_FEQUAL(this->x, 0.0f) && LINALG_FEQUAL(this->y, 0.0f));
 }
 
 template<> bool dvec2::isNullVector() const
 {
 	// It's faster to just compare to 0, than to calculate the length
-	return (LINALG_DEQUAL(x, 0.0) && LINALG_DEQUAL(y, 0.0));
+	return (LINALG_DEQUAL(this->x, 0.0) && LINALG_DEQUAL(this->y, 0.0));
 }
 
 
@@ -3457,17 +3397,17 @@ vec3_t<T>::vec3_t(const vec4_t<T2> &v) : x(T(v.x)), y(T(v.y)), z(T(v.z))
 
 template<typename T> inline bool vec3_t<T>::operator==(const vec3 &rhs) const
 {
-	return ((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
+	return ((this->x == rhs.x) && (this->y == rhs.y) && (this->z == rhs.z));
 }
 
 template<> inline bool fvec3::operator==(const fvec3 &rhs) const
 {
-	return (LINALG_FEQUAL(x, rhs.x) && LINALG_FEQUAL(y, rhs.y) && LINALG_FEQUAL(z, rhs.z));
+	return (LINALG_FEQUAL(this->x, rhs.x) && LINALG_FEQUAL(this->y, rhs.y) && LINALG_FEQUAL(this->z, rhs.z));
 }
 
 template<> inline bool dvec3::operator==(const dvec3 &rhs) const
 {
-	return (LINALG_DEQUAL(x, rhs.x) && LINALG_DEQUAL(y, rhs.y) && LINALG_DEQUAL(z, rhs.z));
+	return (LINALG_DEQUAL(this->x, rhs.x) && LINALG_DEQUAL(this->y, rhs.y) && LINALG_DEQUAL(this->z, rhs.z));
 }
 
 #pragma endregion
@@ -3509,19 +3449,19 @@ template<> inline dvec3 dvec3::normalize(const double &to) const
 template<typename T> bool vec3_t<T>::isNullVector() const
 {
 	// It's faster to just compare to 0, than to calculate the length
-	return ((x == 0) && (y == 0) && (z == 0));
+	return ((this->x == 0) && (this->y == 0) && (this->z == 0));
 }
 
 template<> bool fvec3::isNullVector() const
 {
 	// It's faster to just compare to 0, than to calculate the length
-	return (LINALG_FEQUAL(x, 0.0f) && LINALG_FEQUAL(y, 0.0f) && LINALG_FEQUAL(z, 0.0f));
+	return (LINALG_FEQUAL(this->x, 0.0f) && LINALG_FEQUAL(this->y, 0.0f) && LINALG_FEQUAL(this->z, 0.0f));
 }
 
 template<> bool dvec3::isNullVector() const
 {
 	// It's faster to just compare to 0, than to calculate the length
-	return (LINALG_DEQUAL(x, 0.0) && LINALG_DEQUAL(y, 0.0) && LINALG_DEQUAL(z, 0.0));
+	return (LINALG_DEQUAL(this->x, 0.0) && LINALG_DEQUAL(this->y, 0.0) && LINALG_DEQUAL(this->z, 0.0));
 }
 
 
@@ -3660,17 +3600,17 @@ template<typename T> const vec4_t<T> vec4_t<T>::one = vec4_t<T>(T(1), T(1), T(1)
 
 template<typename T> inline bool vec4_t<T>::operator==(const vec4 &rhs) const
 {
-	return ((x == rhs.x) && (y == rhs.y) && (z == rhs.z) && (w == rhs.w));
+	return ((this->x == rhs.x) && (this->y == rhs.y) && (this->z == rhs.z) && (this->w == rhs.w));
 }
 
 template<> inline bool fvec4::operator==(const fvec4 &rhs) const
 {
-	return (LINALG_FEQUAL(x, rhs.x) && LINALG_FEQUAL(y, rhs.y) && LINALG_FEQUAL(z, rhs.z) && LINALG_FEQUAL(w, rhs.w));
+	return (LINALG_FEQUAL(this->x, rhs.x) && LINALG_FEQUAL(this->y, rhs.y) && LINALG_FEQUAL(this->z, rhs.z) && LINALG_FEQUAL(this->w, rhs.w));
 }
 
 template<> inline bool dvec4::operator==(const dvec4 &rhs) const
 {
-	return (LINALG_DEQUAL(x, rhs.x) && LINALG_DEQUAL(y, rhs.y) && LINALG_DEQUAL(z, rhs.z) && LINALG_DEQUAL(w, rhs.w));
+	return (LINALG_DEQUAL(this->x, rhs.x) && LINALG_DEQUAL(this->y, rhs.y) && LINALG_DEQUAL(this->z, rhs.z) && LINALG_DEQUAL(this->w, rhs.w));
 }
 
 #pragma endregion
@@ -3712,19 +3652,19 @@ template<> inline dvec4 dvec4::normalize(const double &to) const
 template<typename T> bool vec4_t<T>::isNullVector() const
 {
 	// It's faster to just compare to 0, than to calculate the length
-	return ((x == 0) && (y == 0) && (z == 0) && (w == 0));
+	return ((this->x == 0) && (this->y == 0) && (this->z == 0) && (this->w == 0));
 }
 
 template<> bool fvec4::isNullVector() const
 {
 	// It's faster to just compare to 0, than to calculate the length
-	return (LINALG_FEQUAL(x, 0.0f) && LINALG_FEQUAL(y, 0.0f) && LINALG_FEQUAL(z, 0.0f) && LINALG_FEQUAL(w, 0.0f));
+	return (LINALG_FEQUAL(this->x, 0.0f) && LINALG_FEQUAL(this->y, 0.0f) && LINALG_FEQUAL(this->z, 0.0f) && LINALG_FEQUAL(this->w, 0.0f));
 }
 
 template<> bool dvec4::isNullVector() const
 {
 	// It's faster to just compare to 0, than to calculate the length
-	return (LINALG_DEQUAL(x, 0.0) && LINALG_DEQUAL(y, 0.0) && LINALG_DEQUAL(z, 0.0) && LINALG_DEQUAL(w, 0.0));
+	return (LINALG_DEQUAL(this->x, 0.0) && LINALG_DEQUAL(this->y, 0.0) && LINALG_DEQUAL(this->z, 0.0) && LINALG_DEQUAL(this->w, 0.0));
 }
 
 
@@ -3857,18 +3797,18 @@ template<typename T> const mat2_t<T> mat2_t<T>::identity = mat2_t<T>(T(1));
 
 template<typename T>
 template<typename T2>
-mat2_t<T>::mat2_t(const mat3_t<T2> &v)
+mat2_t<T>::mat2_t(const mat3_t<T2> &m)
 {
-	columns[0] = vec2(v.columns[0]);
-	columns[1] = vec2(v.columns[1]);
+	this->columns[0] = vec2(m.columns[0]);
+	this->columns[1] = vec2(m.columns[1]);
 }
 
 template<typename T>
 template<typename T2>
-mat2_t<T>::mat2_t(const mat4_t<T2> &v)
+mat2_t<T>::mat2_t(const mat4_t<T2> &m)
 {
-	columns[0] = vec2(v.columns[0]);
-	columns[1] = vec2(v.columns[1]);
+	this->columns[0] = vec2(m.columns[0]);
+	this->columns[1] = vec2(m.columns[1]);
 }
 
 #pragma endregion
@@ -3920,11 +3860,11 @@ template<typename T> const mat3_t<T> mat3_t<T>::identity = mat3_t<T>(T(1));
 
 template<typename T>
 template<typename T2>
-mat3_t<T>::mat3_t(const mat4_t<T2> &v)
+mat3_t<T>::mat3_t(const mat4_t<T2> &m)
 {
-	columns[0] = vec3(v.columns[0]);
-	columns[1] = vec3(v.columns[1]);
-	columns[2] = vec3(v.columns[2]);
+	this->columns[0] = vec3(m.columns[0]);
+	this->columns[1] = vec3(m.columns[1]);
+	this->columns[2] = vec3(m.columns[2]);
 }
 
 #pragma endregion

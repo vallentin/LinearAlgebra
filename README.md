@@ -1,10 +1,4 @@
 
-**Status:** In development (already done, just getting all the files together and writing some documentation).
-
-*Information is chronologically added to this README.md file. When enough is implemented
-and fleshed out, then the library will be released.*
-
-
 # LinearAlgebra
 
 [LinearAlgebra][LinearAlgebra] is a linear algebra library, which consists of:
@@ -50,6 +44,10 @@ mat3 normalMatrix = model.inverse().transpose();
 // vs
 mat3 normalMatrix = transpose(inverse(model));
 ```
+
+
+If GCC is used then compiling [LinearAlgebra][LinearAlgebra] must include `-Wno-unknown-pragmas`,
+as various `#pragma region`'s are scattered in [LinearAlgebra][LinearAlgebra]'s implementation.
 
 
 *[LinearAlgebra][LinearAlgebra] was first created in 2013 for use with OpenGL in Java. Later

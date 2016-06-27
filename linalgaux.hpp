@@ -5,7 +5,7 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: June 07, 2016
+// Last Modified: June 27, 2016
 
 #ifndef LINEAR_ALGEBRA_AUXILIARY_HPP
 #define LINEAR_ALGEBRA_AUXILIARY_HPP
@@ -50,43 +50,43 @@ public:
 
 	mat4 getMatrix() const
 	{
-		if (stack.empty())
+		if (this->stack.empty())
 			return mat4::identity;
 
-		return stack.top();
+		return this->stack.top();
 	}
 
 
 	void pushMatrix()
 	{
-		stack.push(getMatrix());
+		this->stack.push(getMatrix());
 	}
 
 	void popMatrix()
 	{
-		if (!stack.empty())
-			stack.pop();
+		if (!this->stack.empty())
+			this->stack.pop();
 	}
 
 	size_t size() const
 	{
-		return stack.size();
+		return this->stack.size();
 	}
 
 	void clear()
 	{
-		while (!stack.empty())
-			stack.pop();
+		while (!this->stack.empty())
+			this->stack.pop();
 	}
 
 
 	void loadMatrix(const mat4 &matrix)
 	{
-		if (stack.empty())
+		if (this->stack.empty())
 			pushMatrix();
 
-		stack.pop();
-		stack.push(matrix);
+		this->stack.pop();
+		this->stack.push(matrix);
 	}
 
 	void loadIdentity()
@@ -96,10 +96,10 @@ public:
 
 	void multMatrix(const mat4 &matrix)
 	{
-		if (stack.empty())
+		if (this->stack.empty())
 			pushMatrix();
 
-		loadMatrix(stack.top() * matrix);
+		loadMatrix(this->stack.top() * matrix);
 	}
 };
 
