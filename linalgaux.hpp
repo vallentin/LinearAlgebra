@@ -13,6 +13,8 @@
 
 #include <stack>
 
+#include <cstddef>
+
 #include "linalg.hpp"
 
 
