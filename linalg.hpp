@@ -2459,10 +2459,10 @@ public:
 	inline operator mat4_t<T2>() const
 	{
 		return mat4_t<T2>(
-			static_cast<vec4_t<T2>>(columns[0]columns[0]),
-			static_cast<vec4_t<T2>>(columns[0]columns[1]),
-			static_cast<vec4_t<T2>>(columns[0]columns[2]),
-			static_cast<vec4_t<T2>>(columns[0]columns[3])
+			static_cast<vec4_t<T2>>(this->columns[0]),
+			static_cast<vec4_t<T2>>(this->columns[1]),
+			static_cast<vec4_t<T2>>(this->columns[2]),
+			static_cast<vec4_t<T2>>(this->columns[3])
 		);
 	}
 
