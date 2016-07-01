@@ -5,7 +5,7 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: June 27, 2016
+// Last Modified: June 30, 2016
 
 #ifndef LINEAR_ALGEBRA_HPP
 #define LINEAR_ALGEBRA_HPP
@@ -1859,6 +1859,20 @@ public:
 
 #pragma endregion
 
+#pragma region Function Call Operator
+
+	T operator()(const int row, const int column) const
+	{
+		return (*this)[column][row];
+	}
+
+	T& operator()(const int row, const int column)
+	{
+		return (*this)[column][row];
+	}
+
+#pragma endregion
+
 #pragma region Arithmetic Operators
 
 	mat3 operator+(const mat3 &rhs) const
@@ -2091,6 +2105,99 @@ public:
 	{
 		(*this)[column][row] = value;
 	}
+
+
+	mat3& rotate(const T radians, const vec3 &axis)
+	{
+		vec3 axisNormalized = axis;
+
+		if (!axisNormalized.isUnitVector())
+			axisNormalized = normalize(axisNormalized);
+
+		const T s = sin(radians);
+		const T c = cos(radians);
+		const T oc = T(1) - c;
+
+		const T x = axisNormalized.x;
+		const T y = axisNormalized.y;
+		const T z = axisNormalized.z;
+
+		return ((*this) *= mat3(
+			(x * x * oc + c),
+			(x * y * oc - z * s),
+			(x * z * oc + y * s),
+
+			(y * x * oc + z * s),
+			(y * y * oc + c),
+			(y * z * oc - x * s),
+
+			(x * z * oc - y * s),
+			(y * z * oc + x * s),
+			(z * z * oc + c)
+		));
+	}
+	friend inline mat3 rotate(const mat3 &m, const T radians, const vec3 &axis) { return mat3(m).rotate(radians, axis); }
+
+	inline mat3& rotate(const T radians, const T ax, const T ay, const T az) { return (*this).rotate(radians, vec3(ax, ay, az)); }
+	friend inline mat3 rotate(const mat3 &m, const T radians, const T ax, const T ay, const T az) { return mat3(m).rotate(radians, ax, ay, az); }
+
+
+	inline mat3& rotateDegrees(const T degrees, const vec3 &axis) { return rotate(degrees * T(LINALG_DEG2RAD), axis); }
+	friend inline mat3 rotateDegrees(const mat3 &m, const T degrees, const vec3 &axis) { return mat3(m).rotateDegrees(degrees, axis); }
+
+	inline mat3& rotateDegrees(const T degrees, const T ax, const T ay, const T az) { return (*this).rotateDegrees(degrees, vec3(ax, ay, az)); }
+	friend inline mat3 rotateDegrees(const mat3 &m, const T degrees, const T ax, const T ay, const T az) { return mat3(m).rotateDegrees(degrees, ax, ay, az); }
+
+
+	mat3& rotateX(const T radians)
+	{
+		const T s = sin(radians);
+		const T c = cos(radians);
+
+		return ((*this) *= mat3(
+			T(1), T(0), T(0),
+			T(0), c, -s,
+			T(0), s, c
+		));
+	}
+	friend inline mat3 rotateX(const mat3 &m, const T radians) { return mat3(m).rotateX(radians); }
+
+	inline mat3& rotateXDegrees(const T degrees) { return rotateX(degrees * T(LINALG_DEG2RAD)); }
+	friend inline mat3 rotateXDegrees(const mat3 &m, const T degrees) { return mat3(m).rotateXDegrees(degrees); }
+
+
+	mat3& rotateY(const T radians)
+	{
+		const T s = sin(radians);
+		const T c = cos(radians);
+
+		return ((*this) *= mat3(
+			c, T(0), s,
+			T(0), T(1), T(0),
+			-s, T(0), c
+		));
+	}
+	friend inline mat3 rotateY(const mat3 &m, const T radians) { return mat3(m).rotateY(radians); }
+
+	inline mat3& rotateYDegrees(const T degrees) { return rotateY(degrees * T(LINALG_DEG2RAD)); }
+	friend inline mat3 rotateYDegrees(const mat3 &m, const T degrees) { return mat3(m).rotateYDegrees(degrees); }
+
+
+	mat3& rotateZ(const T radians)
+	{
+		const T s = sin(radians);
+		const T c = cos(radians);
+
+		return ((*this) *= mat3(
+			c, -s, T(0),
+			s, c, T(0),
+			T(0), T(0), T(1)
+		));
+	}
+	friend inline mat3 rotateZ(const mat3 &m, const T radians) { return mat3(m).rotateZ(radians); }
+
+	inline mat3& rotateZDegrees(const T degrees) { return rotateZ(degrees * T(LINALG_DEG2RAD)); }
+	friend inline mat3 rotateZDegrees(const mat3 &m, const T degrees) { return mat3(m).rotateZDegrees(degrees); }
 };
 
 
@@ -2207,30 +2314,46 @@ public:
 	}
 
 
-	static mat4 lookAt(const vec3 &eye, const vec3 &target, const vec3 &up = vec3(T(0), T(1), T(0)))
+	static mat4 lookAt(const vec3 &eye, const vec3 &at, const vec3 &up = vec3::up)
 	{
-		const vec3 forward = normalize(target - eye);
-		const vec3 right = normalize(cross(up, forward));
-		const vec3 upNew = cross(forward, right);
+		const vec3 forward = normalize(at - eye);
+		const vec3 right = normalize(cross(forward, up));
+		const vec3 upNew = cross(right, forward);
 
 		return mat4(
-			right.x, right.y, right.z, T(0),
-			upNew.x, upNew.y, upNew.z, T(0),
-			forward.x, forward.y, forward.z, T(0),
-			eye.x, eye.y, eye.z, T(1)
+			right.x, upNew.x, -forward.x, T(0),
+			right.y, upNew.y, -forward.y, T(0),
+			right.z, upNew.z, -forward.z, T(0),
+			-dot(right, eye), -dot(upNew, eye), -dot(-forward, eye), T(1)
 		);
 	}
 
-	static mat4 lookDirection(const vec3 &direction, const vec3 &up = vec3(T(0), T(1), T(0)))
+	static inline mat4 lookAtYZ(const vec3 &eye, vec3 at, const vec3 &up = vec3::up)
 	{
-		const vec3 forward = direction;
-		const vec3 right = normalize(cross(up, forward));
-		const vec3 upNew = cross(forward, right);
+		return mat4::lookAt(eye, vec3(eye.x, at.y, at.z), up);
+	}
+
+	static inline mat4 lookAtXZ(const vec3 &eye, vec3 at, const vec3 &up = vec3::up)
+	{
+		return mat4::lookAt(eye, vec3(at.x, eye.y, at.z), up);
+	}
+
+	static inline mat4 lookAtXY(const vec3 &eye, const vec3 &at, const vec3 &up = vec3::up)
+	{
+		return mat4::lookAt(eye, vec3(at.x, at.y, eye.z), up);
+	}
+
+
+	static mat4 lookDirection(const vec3 &direction, const vec3 &up = vec3::up)
+	{
+		const vec3 forward = normalize(direction);
+		const vec3 right = normalize(cross(forward, up));
+		const vec3 upNew = cross(right, forward);
 
 		return mat4(
-			right.x, right.y, right.z, T(0),
-			upNew.x, upNew.y, upNew.z, T(0),
-			forward.x, forward.y, forward.z, T(0),
+			right.x, upNew.x, -forward.x, T(0),
+			right.y, upNew.y, -forward.y, T(0),
+			right.z, upNew.z, -forward.z, T(0),
 			T(0), T(0), T(0), T(1)
 		);
 	}
@@ -2320,6 +2443,20 @@ public:
 
 	inline vec4& operator[](const int index) { return (reinterpret_cast<vec4*>(this))[index]; }
 	inline vec4 operator[](const int index) const { return ((vec4*) this)[index]; }
+
+#pragma endregion
+
+#pragma region Function Call Operator
+
+	T operator()(const int row, const int column) const
+	{
+		return (*this)[column][row];
+	}
+
+	T& operator()(const int row, const int column)
+	{
+		return (*this)[column][row];
+	}
 
 #pragma endregion
 
@@ -2718,29 +2855,30 @@ public:
 		vec3 axisNormalized = axis;
 
 		if (!axisNormalized.isUnitVector())
-			axisNormalized.normalize();
+			axisNormalized = normalize(axisNormalized);
 
 		const T s = sin(radians);
 		const T c = cos(radians);
+		const T oc = T(1) - c;
 
 		const T x = axisNormalized.x;
 		const T y = axisNormalized.y;
 		const T z = axisNormalized.z;
 
 		return ((*this) *= mat4(
-			(x * x * (T(1) - c) + c),
-			(x * y * (T(1) - c) - z * s),
-			(x * z * (T(1) - c) + y * s),
+			(x * x * oc + c),
+			(x * y * oc - z * s),
+			(x * z * oc + y * s),
 			T(0),
 
-			(y * x * (T(1) - c) + z * s),
-			(y * y * (T(1) - c) + c),
-			(y * z * (T(1) - c) - x * s),
+			(y * x * oc + z * s),
+			(y * y * oc + c),
+			(y * z * oc - x * s),
 			T(0),
 
-			(x * z * (T(1) - c) - y * s),
-			(y * z * (T(1) - c) + x * s),
-			(z * z * (T(1) - c) + c),
+			(x * z * oc - y * s),
+			(y * z * oc + x * s),
+			(z * z * oc + c),
 			T(0),
 
 			T(0), T(0), T(0), T(1)
@@ -2765,10 +2903,10 @@ public:
 		const T c = cos(radians);
 
 		return ((*this) *= mat4(
-			vec4(T(1), T(0), T(0), T(0)),
-			vec4(T(0), c, -s, T(0)),
-			vec4(T(0), s, c, T(0)),
-			vec4(T(0), T(0), T(0), T(1))
+			T(1), T(0), T(0), T(0),
+			T(0), c, -s, T(0),
+			T(0), s, c, T(0),
+			T(0), T(0), T(0), T(1)
 		));
 	}
 	friend inline mat4 rotateX(const mat4 &m, const T radians) { return mat4(m).rotateX(radians); }
@@ -2783,10 +2921,10 @@ public:
 		const T c = cos(radians);
 
 		return ((*this) *= mat4(
-			vec4(c, T(0), s, T(0)),
-			vec4(T(0), T(1), T(0), T(0)),
-			vec4(-s, T(0), c, T(0)),
-			vec4(T(0), T(0), T(0), T(1))
+			c, T(0), s, T(0),
+			T(0), T(1), T(0), T(0),
+			-s, T(0), c, T(0),
+			T(0), T(0), T(0), T(1)
 		));
 	}
 	friend inline mat4 rotateY(const mat4 &m, const T radians) { return mat4(m).rotateY(radians); }
@@ -2801,10 +2939,10 @@ public:
 		const T c = cos(radians);
 
 		return ((*this) *= mat4(
-			vec4(c, -s, T(0), T(0)),
-			vec4(s, c, T(0), T(0)),
-			vec4(T(0), T(0), T(1), T(0)),
-			vec4(T(0), T(0), T(0), T(1))
+			c, -s, T(0), T(0),
+			s, c, T(0), T(0),
+			T(0), T(0), T(1), T(0),
+			T(0), T(0), T(0), T(1)
 		));
 	}
 	friend inline mat4 rotateZ(const mat4 &m, const T radians) { return mat4(m).rotateZ(radians); }
