@@ -5,10 +5,25 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: June 30, 2016
+// Last Modified: July 02, 2016
 
 #ifndef LINEAR_ALGEBRA_HPP
 #define LINEAR_ALGEBRA_HPP
+
+
+#define _LINALG_STRINGIFY(str) #str
+#define _LINALG_STRINGIFY_TOKEN(str) _LINALG_STRINGIFY(str)
+
+#define LINALG_STRINGIFY_VERSION(major, minor, patch) _LINALG_STRINGIFY(major) "." _LINALG_STRINGIFY(minor) "." _LINALG_STRINGIFY(patch)
+
+
+#define LINALG_NAME "LinearAlgebra"
+
+#define LINALG_VERSION_MAJOR 1
+#define LINALG_VERSION_MINOR 1
+#define LINALG_VERSION_PATCH 8
+
+#define LINALG_VERSION LINALG_STRINGIFY_VERSION(LINALG_VERSION_MAJOR, LINALG_VERSION_MINOR, LINALG_VERSION_PATCH)
 
 
 #include <math.h>
@@ -2198,6 +2213,12 @@ public:
 
 	inline mat3& rotateZDegrees(const T degrees) { return rotateZ(degrees * T(LINALG_DEG2RAD)); }
 	friend inline mat3 rotateZDegrees(const mat3 &m, const T degrees) { return mat3(m).rotateZDegrees(degrees); }
+
+
+	inline vec3 getScaling() const
+	{
+		return vec3((*this)(0, 0), (*this)(1, 1), (*this)(2, 2));
+	}
 };
 
 
@@ -2356,6 +2377,77 @@ public:
 			right.z, upNew.z, -forward.z, T(0),
 			T(0), T(0), T(0), T(1)
 		);
+	}
+
+
+	static vec3 project(const vec3 &object, const mat4 &modelView, const mat4 &projection, const ivec4 &viewport)
+	{
+		const vec4 a = modelView * vec4(object, 1.0f);
+		const vec3 ab = mat3(projection) * vec3(a);
+
+		vec4 b = vec4(ab, -a.z);
+
+		if (LINALG_FEQUAL(b.w, 0.0f))
+			return vec3(0.0f, 0.0f, 0.0f);
+
+		b.w = 1.0f / b.w;
+
+		b.x = b.x * b.w;
+		b.y = b.y * b.w;
+		b.z = b.z * b.w;
+
+		vec3 window;
+
+		window.x = (b.x * 0.5f + 0.5f) * viewport.z + viewport.x;
+		window.y = (b.y * 0.5f + 0.5f) * viewport.w + viewport.y;
+
+		// This is only correct when glDepthRangef(0.0f, 1.0f)
+		window.z = (1.0f + b.z) * 0.5f;
+
+		return window;
+	}
+
+	static inline vec3 project(const vec3 &object, const mat4 &model, const mat4 &view, const mat4 &projection, const ivec4 &viewport)
+	{
+		return mat4::project(object, (view * model), projection, viewport);
+	}
+
+
+	static vec3 unproject(const vec3 &window, const mat4 &modelViewProjection, const ivec4 &viewport)
+	{
+		const mat4 inverseMVP = mat4(modelViewProjection).inverse();
+
+		vec4 in = vec4(window, 1.0f);
+
+		in.x = (in.x - static_cast<float>(viewport.x)) / static_cast<float>(viewport.z);
+		in.y = (in.y - static_cast<float>(viewport.y)) / static_cast<float>(viewport.w);
+
+		in = in * 2.0f - 1.0f;
+		in.w = 1.0f;
+
+		vec4 out = inverseMVP * in;
+
+		if (LINALG_FEQUAL(out.w, 0.0f))
+			return vec3(0.0f, 0.0f, 0.0f);
+
+		out.w = 1.0f / out.w;
+
+		vec3 object;
+		object.x = out.x * out.w;
+		object.y = out.y * out.w;
+		object.z = out.z * out.w;
+
+		return object;
+	}
+
+	static inline vec3 unproject(const vec3 &window, const mat4 &modelView, const mat4 &projection, const ivec4 &viewport)
+	{
+		return unproject(window, (projection * modelView), viewport);
+	}
+
+	static inline vec3 unproject(const vec3 &window, const mat4 &model, const mat4 &view, const mat4 &projection, const ivec4 &viewport)
+	{
+		return unproject(window, (projection * view * model), viewport);
 	}
 
 
@@ -3004,6 +3096,11 @@ public:
 		const vec4 translation = (*this)[3];
 
 		return vec3(translation.x, translation.y, translation.z);
+	}
+
+	inline vec3 getScaling() const
+	{
+		return vec3((*this)(0, 0), (*this)(1, 1), (*this)(2, 2));
 	}
 };
 
