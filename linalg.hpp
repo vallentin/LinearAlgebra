@@ -5,7 +5,13 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: July 02, 2016
+// Last Modified: July 03, 2016
+
+// Refrain from using any exposed functions and
+// structs prefixed with an underscore. As these
+// are only intended for internal purposes. Which
+// means they can be removed, renamed or changed
+// between minor updates.
 
 #ifndef LINEAR_ALGEBRA_HPP
 #define LINEAR_ALGEBRA_HPP
@@ -27,6 +33,34 @@
 
 
 #include <math.h>
+
+
+#ifdef _IOSTREAM_
+
+#define _LINALG_IN_FIND_BEGIN() \
+	do { \
+		stream >> c; \
+		if (stream.eof()) \
+			return stream; \
+	} while (c != '(');
+
+#define _LINALG_IN_FIND_NEXT() \
+	do { \
+		stream >> c; \
+		if (stream.eof()) \
+			return stream; \
+		else if (c == ')') \
+			return stream; \
+	} while (c != ',');
+
+#define _LINALG_IN_FIND_END() \
+	do { \
+		stream >> c; \
+		if (stream.eof()) \
+			return stream; \
+	} while (c != ')');
+
+#endif
 
 
 #ifndef LINALG_DEFAULT_SCALAR
@@ -389,12 +423,46 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const vec2 &rhs)
 	{
-		return (stream << "vec2 {x=" << rhs.x << ", y=" << rhs.y << "}");
+		return (stream << "vec2(" << rhs.x << ", " << rhs.y << ")");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const vec2 &rhs)
 	{
-		return (stream << L"vec2 {x=" << rhs.x << L", y=" << rhs.y << L"}");
+		return (stream << L"vec2(" << rhs.x << L", " << rhs.y << L")");
+	}
+
+	friend inline std::istream& operator>>(std::istream &stream, vec2 &rhs)
+	{
+		rhs = vec2::zero;
+
+		char c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs.x;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.y;
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
+	}
+
+	friend inline std::wistream& operator>>(std::wistream &stream, vec2 &rhs)
+	{
+		rhs = vec2::zero;
+
+		wchar_t c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs.x;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.y;
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
 	}
 
 #endif
@@ -852,12 +920,52 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const vec3 &rhs)
 	{
-		return (stream << "vec3 {x=" << rhs.x << ", y=" << rhs.y << ", z=" << rhs.z << "}");
+		return (stream << "vec3(" << rhs.x << ", " << rhs.y << ", " << rhs.z << ")");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const vec3 &rhs)
 	{
-		return (stream << L"vec3 {x=" << rhs.x << L", y=" << rhs.y << L", z=" << rhs.z << L"}");
+		return (stream << L"vec3(" << rhs.x << L", " << rhs.y << L", " << rhs.z << L")");
+	}
+
+	friend inline std::istream& operator>>(std::istream &stream, vec3 &rhs)
+	{
+		rhs = vec3::zero;
+
+		char c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs.x;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.y;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.z;
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
+	}
+
+	friend inline std::wistream& operator>>(std::wistream &stream, vec3 &rhs)
+	{
+		rhs = vec3::zero;
+
+		wchar_t c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs.x;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.y;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.z;
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
 	}
 
 #endif
@@ -1298,12 +1406,58 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const vec4 &rhs)
 	{
-		return (stream << "vec4 {x=" << rhs.x << ", y=" << rhs.y << ", z=" << rhs.z << ", w=" << rhs.w << "}");
+		return (stream << "vec4(" << rhs.x << ", " << rhs.y << ", " << rhs.z << ", " << rhs.w << ")");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const vec4 &rhs)
 	{
-		return (stream << L"vec4 {x=" << rhs.x << L", y=" << rhs.y << L", z=" << rhs.z << L", w=" << rhs.w << L"}");
+		return (stream << L"vec4(" << rhs.x << L", " << rhs.y << L", " << rhs.z << L", " << rhs.w << L")");
+	}
+
+	friend inline std::istream& operator>>(std::istream &stream, vec4 &rhs)
+	{
+		rhs = vec4::zero;
+
+		char c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs.x;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.y;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.z;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.w;
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
+	}
+
+	friend inline std::wistream& operator>>(std::wistream &stream, vec4 &rhs)
+	{
+		rhs = vec4::zero;
+
+		wchar_t c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs.x;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.y;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.z;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.w;
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
 	}
 
 #endif
@@ -1720,14 +1874,48 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const mat2 &rhs)
 	{
-		return (stream << "mat2 {" << rhs[0] << "," << std::endl
-					   << "      " << rhs[1] << "}");
+		return (stream << "mat2(" << rhs[0] << "," << std::endl
+					   << "     " << rhs[1] << ")");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const mat2 &rhs)
 	{
-		return (stream << L"mat2 {" << rhs[0] << L"," << std::endl
-					   << L"      " << rhs[1] << L"}");
+		return (stream << L"mat2(" << rhs[0] << L"," << std::endl
+					   << L"     " << rhs[1] << L")");
+	}
+
+	friend inline std::istream& operator>>(std::istream &stream, mat2 &rhs)
+	{
+		rhs = mat2::identity;
+
+		char c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs[0];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[1];
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
+	}
+
+	friend inline std::wistream& operator>>(std::wistream &stream, mat2 &rhs)
+	{
+		rhs = mat2::identity;
+
+		wchar_t c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs[0];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[1];
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
 	}
 
 #endif
@@ -2036,16 +2224,56 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const mat3 &rhs)
 	{
-		return (stream << "mat3 {" << rhs[0] << "," << std::endl
-					   << "      " << rhs[1] << "," << std::endl
-					   << "      " << rhs[2] << "}");
+		return (stream << "mat3(" << rhs[0] << "," << std::endl
+					   << "     " << rhs[1] << "," << std::endl
+					   << "     " << rhs[2] << ")");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const mat3 &rhs)
 	{
-		return (stream << L"mat3 {" << rhs[0] << L"," << std::endl
-					   << L"      " << rhs[1] << L"," << std::endl
-					   << L"      " << rhs[2] << L"}");
+		return (stream << L"mat3(" << rhs[0] << L"," << std::endl
+					   << L"     " << rhs[1] << L"," << std::endl
+					   << L"     " << rhs[2] << L")");
+	}
+
+	friend inline std::istream& operator>>(std::istream &stream, mat3 &rhs)
+	{
+		rhs = mat3::identity;
+
+		char c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs[0];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[1];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[2];
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
+	}
+
+	friend inline std::wistream& operator>>(std::wistream &stream, mat3 &rhs)
+	{
+		rhs = mat3::identity;
+
+		wchar_t c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs[0];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[1];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[2];
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
 	}
 
 #endif
@@ -2399,7 +2627,7 @@ public:
 		vec3 window;
 
 		window.x = (b.x * 0.5f + 0.5f) * viewport.z + viewport.x;
-		window.y = (b.y * 0.5f + 0.5f) * viewport.w + viewport.y;
+		window.y = (1.0f - (b.y * 0.5f + 0.5f)) * viewport.w + viewport.y;
 
 		// This is only correct when glDepthRangef(0.0f, 1.0f)
 		window.z = (1.0f + b.z) * 0.5f;
@@ -2420,7 +2648,7 @@ public:
 		vec4 in = vec4(window, 1.0f);
 
 		in.x = (in.x - static_cast<float>(viewport.x)) / static_cast<float>(viewport.z);
-		in.y = (in.y - static_cast<float>(viewport.y)) / static_cast<float>(viewport.w);
+		in.y = 1.0f - (in.y - static_cast<float>(viewport.y)) / static_cast<float>(viewport.w);
 
 		in = in * 2.0f - 1.0f;
 		in.w = 1.0f;
@@ -2703,18 +2931,64 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const mat4 &rhs)
 	{
-		return (stream << "mat4 {" << rhs[0] << "," << std::endl
-					   << "      " << rhs[1] << "," << std::endl
-					   << "      " << rhs[2] << "," << std::endl
-					   << "      " << rhs[3] << "}");
+		return (stream << "mat4(" << rhs[0] << "," << std::endl
+					   << "     " << rhs[1] << "," << std::endl
+					   << "     " << rhs[2] << "," << std::endl
+					   << "     " << rhs[3] << ")");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const mat4 &rhs)
 	{
-		return (stream << L"mat4 {" << rhs[0] << L"," << std::endl
-					   << L"      " << rhs[1] << L"," << std::endl
-					   << L"      " << rhs[2] << L"," << std::endl
-					   << L"      " << rhs[3] << L"}");
+		return (stream << L"mat4(" << rhs[0] << L"," << std::endl
+					   << L"     " << rhs[1] << L"," << std::endl
+					   << L"     " << rhs[2] << L"," << std::endl
+					   << L"     " << rhs[3] << L")");
+	}
+
+	friend inline std::istream& operator>>(std::istream &stream, mat4 &rhs)
+	{
+		rhs = mat4::identity;
+
+		char c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs[0];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[1];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[2];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[3];
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
+	}
+
+	friend inline std::wistream& operator>>(std::wistream &stream, mat4 &rhs)
+	{
+		rhs = mat4::identity;
+
+		wchar_t c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs[0];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[1];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[2];
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs[3];
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
 	}
 
 #endif
@@ -3118,6 +3392,14 @@ private:
 
 public:
 
+	static const quat_t<T> zero;
+	static const quat_t<T> one;
+
+	static const quat_t<T> identity;
+
+
+public:
+
 	T x, y, z, w;
 
 
@@ -3242,12 +3524,58 @@ public:
 
 	friend inline std::ostream& operator<<(std::ostream &stream, const quat &rhs)
 	{
-		return (stream << "quat {x=" << rhs.x << ", y=" << rhs.y << ", z=" << rhs.z << ", w=" << rhs.w << "}");
+		return (stream << "quat(" << rhs.x << ", " << rhs.y << ", " << rhs.z << ", " << rhs.w << ")");
 	}
 
 	friend inline std::wostream& operator<<(std::wostream &stream, const quat &rhs)
 	{
-		return (stream << L"quat {x=" << rhs.x << L", y=" << rhs.y << L", z=" << rhs.z << L", w=" << rhs.w << L"}");
+		return (stream << L"quat(" << rhs.x << L", " << rhs.y << L", " << rhs.z << L", " << rhs.w << L")");
+	}
+
+	friend inline std::istream& operator>>(std::istream &stream, quat &rhs)
+	{
+		rhs = quat::zero;
+
+		char c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs.x;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.y;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.z;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.w;
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
+	}
+
+	friend inline std::wistream& operator>>(std::wistream &stream, quat &rhs)
+	{
+		rhs = quat::zero;
+
+		wchar_t c;
+
+		_LINALG_IN_FIND_BEGIN();
+		stream >> rhs.x;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.y;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.z;
+
+		_LINALG_IN_FIND_NEXT();
+		stream >> rhs.w;
+
+		_LINALG_IN_FIND_END();
+
+		return stream;
 	}
 
 #endif
@@ -4189,7 +4517,14 @@ template<> inline bool mat4_t<double>::operator==(const mat4_t<double> &rhs) con
 
 #pragma region quat
 
+#pragma region Static Members
 
+template<typename T> const quat_t<T> quat_t<T>::zero = vec4_t<T>(T(0), T(0), T(0), T(0));
+template<typename T> const quat_t<T> quat_t<T>::one = vec4_t<T>(T(1), T(1), T(1), T(1));
+
+template<typename T> const quat_t<T> quat_t<T>::identity = vec4_t<T>(T(0), T(0), T(0), T(1));
+
+#pragma endregion
 
 #pragma endregion
 
