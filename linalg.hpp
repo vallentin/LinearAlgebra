@@ -5,7 +5,7 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: July 03, 2016
+// Last Modified: July 04, 2016
 
 // Refrain from using any exposed functions and
 // structs prefixed with an underscore. As these
@@ -27,7 +27,7 @@
 
 #define LINALG_VERSION_MAJOR 1
 #define LINALG_VERSION_MINOR 1
-#define LINALG_VERSION_PATCH 8
+#define LINALG_VERSION_PATCH 10
 
 #define LINALG_VERSION LINALG_STRINGIFY_VERSION(LINALG_VERSION_MAJOR, LINALG_VERSION_MINOR, LINALG_VERSION_PATCH)
 
@@ -709,20 +709,34 @@ public:
 public:
 
 	// Performs Gram-Schmidt Orthogonalization on 2 basis vectors to turn them into orthonormal basis vectors
-	static vec3 orthogonalize(const vec3 &a, vec3 &b)
+	static inline vec3 orthogonalize(const vec3 &a, vec3 &b)
 	{
 		b = b - b.project(a);
 		b = b.normalize();
 	}
 
 	// Performs Gram-Schmidt Orthogonalization on 3 basis vectors to turn them into orthonormal basis vectors
-	static void orthogonalize(const vec3 &a, vec3 &b, vec3 &c)
+	static inline void orthogonalize(const vec3 &a, vec3 &b, vec3 &c)
 	{
 		b = b - b.project(a);
 		b = b.normalize();
 
 		c = c - c.project(a) - c.project(b);
 		c = c.normalize();
+	}
+
+
+	// The order of the vertices given will affect the direction of the resulting normal.
+	// The front face of the triangle is considered to be the counter-clockwise order of
+	// the three vertices given.
+	static inline vec3 surfaceNormal(const vec3 &point1, const vec3 &point2, const vec3 &point3)
+	{
+		const vec3 u = point3 - point1;
+		const vec3 v = point2 - point1;
+
+		const vec3 normal = u.cross(v);
+
+		return normal.normalize();
 	}
 
 
@@ -1977,6 +1991,17 @@ public:
 	{
 		(*this)[column][row] = value;
 	}
+
+
+	inline mat2& setZero()
+	{
+		return ((*this) = mat2::zero);
+	}
+
+	inline mat2& setIdentity()
+	{
+		return ((*this) = mat2::identity);
+	}
 };
 
 
@@ -2350,6 +2375,17 @@ public:
 	}
 
 
+	inline mat3& setZero()
+	{
+		return ((*this) = mat3::zero);
+	}
+
+	inline mat3& setIdentity()
+	{
+		return ((*this) = mat3::identity);
+	}
+
+
 	mat3& rotate(const T radians, const vec3 &axis)
 	{
 		vec3 axisNormalized = axis;
@@ -2442,6 +2478,16 @@ public:
 	inline mat3& rotateZDegrees(const T degrees) { return rotateZ(degrees * T(LINALG_DEG2RAD)); }
 	friend inline mat3 rotateZDegrees(const mat3 &m, const T degrees) { return mat3(m).rotateZDegrees(degrees); }
 
+
+	inline mat3& setScaling(const vec3 &scaling)
+	{
+		return ((*this) = mat3::scaling(scaling));
+	}
+
+	inline mat3 setScaling(const T sx, const T sy, const T sz = T(0))
+	{
+		return ((*this) = mat3::scaling(vec3(tx, ty, tz)));
+	}
 
 	inline vec3 getScaling() const
 	{
@@ -3193,6 +3239,17 @@ public:
 	}
 
 
+	inline mat4& setZero()
+	{
+		return ((*this) = mat4::zero);
+	}
+
+	inline mat4& setIdentity()
+	{
+		return ((*this) = mat4::identity);
+	}
+
+
 	mat4& translate(const vec3 &translation)
 	{
 		return ((*this) *= mat4::translation(translation));
@@ -3365,11 +3422,32 @@ public:
 	friend inline mat4 skewYDegrees(const mat4 &m, const T degrees) { return mat4(m).skewYDegrees(degrees); }
 
 
+	inline mat4& setTranslation(const vec3 &translation)
+	{
+		return ((*this) = mat4::translation(translation));
+	}
+
+	inline mat4 setTranslation(const T tx, const T ty, const T tz = T(0))
+	{
+		return ((*this) = mat4::translation(vec3(tx, ty, tz)));
+	}
+
 	inline vec3 getTranslation() const
 	{
 		const vec4 translation = (*this)[3];
 
 		return vec3(translation.x, translation.y, translation.z);
+	}
+
+
+	inline mat4& setScaling(const vec3 &scaling)
+	{
+		return ((*this) = mat4::scaling(scaling));
+	}
+
+	inline mat4 setScaling(const T sx, const T sy, const T sz = T(0))
+	{
+		return ((*this) = mat4::scaling(vec3(tx, ty, tz)));
 	}
 
 	inline vec3 getScaling() const
