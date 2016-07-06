@@ -5,13 +5,13 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: July 05, 2016
+// Last Modified: July 06, 2016
 
-// Refrain from using any exposed functions and
-// structs prefixed with an underscore. As these
+// Refrain from using any exposed macros, functions
+// or structs prefixed with an underscore. As these
 // are only intended for internal purposes. Which
-// means they can be removed, renamed or changed
-// between minor updates.
+// additionally means they can be removed, renamed
+// or changed between minor updates without notice.
 
 #ifndef LINEAR_ALGEBRA_HPP
 #define LINEAR_ALGEBRA_HPP
@@ -27,7 +27,7 @@
 
 #define LINALG_VERSION_MAJOR 1
 #define LINALG_VERSION_MINOR 1
-#define LINALG_VERSION_PATCH 11
+#define LINALG_VERSION_PATCH 12
 
 #define LINALG_VERSION LINALG_STRINGIFY_VERSION(LINALG_VERSION_MAJOR, LINALG_VERSION_MINOR, LINALG_VERSION_PATCH)
 
@@ -2578,6 +2578,11 @@ public:
 		return perspective(fov, width / height, zNear, zFar);
 	}
 
+	static mat4 perspective(const T fov, const int width, const int height, const T zNear, const T zFar)
+	{
+		return perspective(fov, static_cast<T>(width), static_cast<T>(height), zNear, zFar);
+	}
+
 
 	static mat4 orthographic(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
 	{
@@ -3787,6 +3792,11 @@ public:
 	T getAngle() const
 	{
 		return T(2) * acos(this->w);
+	}
+
+	T getAngleDegrees() const
+	{
+		return getAngle() * T(LINALG_RAD2DEG);
 	}
 
 	vec3 getAxis() const

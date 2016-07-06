@@ -7,6 +7,12 @@
 // Date Created: October 01, 2013
 // Last Modified: June 27, 2016
 
+// Refrain from using any exposed macros, functions
+// or structs prefixed with an underscore. As these
+// are only intended for internal purposes. Which
+// additionally means they can be removed, renamed
+// or changed between minor updates without notice.
+
 #ifndef LINEAR_ALGEBRA_AUXILIARY_HPP
 #define LINEAR_ALGEBRA_AUXILIARY_HPP
 
