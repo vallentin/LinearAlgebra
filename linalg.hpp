@@ -5,7 +5,7 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: July 06, 2016
+// Last Modified: July 07, 2016
 
 // Refrain from using any exposed macros, functions
 // or structs prefixed with an underscore. As these
@@ -27,9 +27,11 @@
 
 #define LINALG_VERSION_MAJOR 1
 #define LINALG_VERSION_MINOR 1
-#define LINALG_VERSION_PATCH 12
+#define LINALG_VERSION_PATCH 13
 
 #define LINALG_VERSION LINALG_STRINGIFY_VERSION(LINALG_VERSION_MAJOR, LINALG_VERSION_MINOR, LINALG_VERSION_PATCH)
+
+#define LINALG_NAME_VERSION LINALG_NAME " " LINALG_VERSION
 
 
 #include <math.h>
@@ -493,6 +495,9 @@ public:
 	inline T lengthSquared() const { return (this->x * this->x + this->y * this->y); }
 	friend inline T lengthSquared(const vec2 &lhs) { return lhs.lengthSquared(); }
 
+	inline T length2() const { return (this->x * this->x + this->y * this->y); }
+	friend inline T length2(const vec2 &lhs) { return lhs.lengthSquared(); }
+
 	inline T length() const { return sqrt(lengthSquared()); }
 	friend inline T length(const vec2 &lhs) { return lhs.length(); }
 
@@ -683,6 +688,15 @@ public:
 #undef LINALG_SWIZZLE_INDEX
 
 #pragma endregion
+
+
+	inline void swap(vec2 &other)
+	{
+		const vec2 tmp(*this);
+		(*this) = other;
+		other = tmp;
+	}
+	friend inline void swap(vec2 &a, vec2 &b) { a.swap(b); }
 };
 
 
@@ -1011,6 +1025,9 @@ public:
 	inline T lengthSquared() const { return (this->x * this->x + this->y * this->y + this->z * this->z); }
 	friend inline T lengthSquared(const vec3 &lhs) { return lhs.lengthSquared(); }
 
+	inline T length2() const { return (this->x * this->x + this->y * this->y + this->z * this->z); }
+	friend inline T length2(const vec3 &lhs) { return lhs.lengthSquared(); }
+
 	inline T length() const { return sqrt(lengthSquared()); }
 	friend inline T length(const vec3 &lhs) { return lhs.length(); }
 
@@ -1204,6 +1221,15 @@ public:
 #undef LINALG_SWIZZLE_INDEX
 
 #pragma endregion
+
+
+	inline void swap(vec3 &other)
+	{
+		const vec3 tmp(*this);
+		(*this) = other;
+		other = tmp;
+	}
+	friend inline void swap(vec3 &a, vec3 &b) { a.swap(b); }
 };
 
 
@@ -1497,6 +1523,9 @@ public:
 	inline T lengthSquared() const { return (this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w); }
 	friend inline T lengthSquared(const vec4 &lhs) { return lhs.lengthSquared(); }
 
+	inline T length2() const { return (this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w); }
+	friend inline T length2(const vec4 &lhs) { return lhs.lengthSquared(); }
+
 	inline T length() const { return sqrt(lengthSquared()); }
 	friend inline T length(const vec4 &lhs) { return lhs.length(); }
 
@@ -1669,6 +1698,15 @@ public:
 #undef LINALG_SWIZZLE_INDEX
 
 #pragma endregion
+
+
+	inline void swap(vec4 &other)
+	{
+		const vec4 tmp(*this);
+		(*this) = other;
+		other = tmp;
+	}
+	friend inline void swap(vec4 &a, vec4 &b) { a.swap(b); }
 };
 
 
@@ -2007,6 +2045,15 @@ public:
 	{
 		return ((*this) = mat2::identity);
 	}
+
+
+	inline void swap(mat2 &other)
+	{
+		const mat2 tmp(*this);
+		(*this) = other;
+		other = tmp;
+	}
+	friend inline void swap(mat2 &a, mat2 &b) { a.swap(b); }
 };
 
 
@@ -2498,6 +2545,15 @@ public:
 	{
 		return vec3((*this)(0, 0), (*this)(1, 1), (*this)(2, 2));
 	}
+
+
+	inline void swap(mat3 &other)
+	{
+		const mat3 tmp(*this);
+		(*this) = other;
+		other = tmp;
+	}
+	friend inline void swap(mat3 &a, mat3 &b) { a.swap(b); }
 };
 
 
@@ -2523,7 +2579,7 @@ public:
 
 public:
 
-	static mat4 translation(const vec3 &translation)
+	static inline mat4 translation(const vec3 &translation)
 	{
 		return mat4(
 			vec4(T(1), T(0), T(0), T(0)),
@@ -2533,13 +2589,13 @@ public:
 		);
 	}
 
-	inline mat4 translation(const T tx, const T ty, const T tz = T(0))
+	static inline mat4 translation(const T tx, const T ty, const T tz = T(0))
 	{
 		return mat4::translation(vec3(tx, ty, tz));
 	}
 
 
-	static mat4 scaling(const vec3 &scaling)
+	static inline mat4 scaling(const vec3 &scaling)
 	{
 		return mat4(
 			vec4(scaling.x, T(0), T(0), T(0)),
@@ -2549,7 +2605,7 @@ public:
 		);
 	}
 
-	static mat4 scaling(const T sx, const T sy, const T sz = T(1))
+	static inline mat4 scaling(const T sx, const T sy, const T sz = T(1))
 	{
 		return mat4::scaling(vec3(sx, sy, sz));
 	}
@@ -2573,18 +2629,18 @@ public:
 		);
 	}
 
-	static mat4 perspective(const T fov, const T width, const T height, const T zNear, const T zFar)
+	static inline mat4 perspective(const T fov, const T width, const T height, const T zNear, const T zFar)
 	{
 		return perspective(fov, width / height, zNear, zFar);
 	}
 
-	static mat4 perspective(const T fov, const int width, const int height, const T zNear, const T zFar)
+	static inline mat4 perspective(const T fov, const int width, const int height, const T zNear, const T zFar)
 	{
 		return perspective(fov, static_cast<T>(width), static_cast<T>(height), zNear, zFar);
 	}
 
 
-	static mat4 orthographic(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
+	static inline mat4 orthographic(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
 	{
 		return mat4(
 			vec4((T(2) / (right - left)), T(0), T(0), T(0)),
@@ -2594,8 +2650,18 @@ public:
 		);
 	}
 
+	static inline mat4 ortho(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
+	{
+		return mat4::orthographic(left, right, bottom, top, zNear, zFar);
+	}
 
-	static mat4 frustum(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
+	static inline mat4 ortho2d(const T left, const T right, const T bottom, const T top)
+	{
+		return mat4::orthographic(left, right, bottom, top, T(-1), T(1));
+	}
+
+
+	static inline mat4 frustum(const T left, const T right, const T bottom, const T top, const T zNear = T(-1), const T zFar = T(1))
 	{
 		return mat4::orthographic(left, right, bottom, top, zNear, zFar);
 	}
@@ -2732,6 +2798,27 @@ public:
 	static inline vec3 unproject(const vec3 &window, const mat4 &model, const mat4 &view, const mat4 &projection, const ivec4 &viewport)
 	{
 		return unproject(window, (projection * view * model), viewport);
+	}
+
+
+	static mat4 pickMatrix(const vec2 &center, const vec2 &size, const ivec4 &viewport)
+	{
+		mat4 m = mat4::identity;
+
+		if ((size.x <= T(0)) && (size.y <= T(0)))
+			return m;
+
+		m.translate(
+			(viewport.z - T(2) * (x - viewport.x)) / size.x,
+			(viewport.w - T(2) * (y - viewport.y)) / size.y,
+			T(0));
+
+		m.scale(
+			viewport.z / size.x,
+			viewport.w / size.y,
+			T(1));
+
+		return m;
 	}
 
 
@@ -3464,6 +3551,15 @@ public:
 	{
 		return vec3((*this)(0, 0), (*this)(1, 1), (*this)(2, 2));
 	}
+
+
+	inline void swap(mat4 &other)
+	{
+		const mat4 tmp(*this);
+		(*this) = other;
+		other = tmp;
+	}
+	friend inline void swap(mat4 &a, mat4 &b) { a.swap(b); }
 };
 
 
@@ -3811,6 +3907,15 @@ public:
 
 		return vec3(this->x * invLength, this->y * invLength, this->z * invLength);
 	}
+
+
+	inline void swap(quat &other)
+	{
+		const quat tmp(*this);
+		(*this) = other;
+		other = tmp;
+	}
+	friend inline void swap(quat &a, quat &b) { a.swap(b); }
 };
 
 
