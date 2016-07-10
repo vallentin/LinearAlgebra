@@ -5,7 +5,7 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: July 07, 2016
+// Last Modified: July 10, 2016
 
 // Refrain from using any exposed macros, functions
 // or structs prefixed with an underscore. As these
@@ -27,7 +27,7 @@
 
 #define LINALG_VERSION_MAJOR 1
 #define LINALG_VERSION_MINOR 1
-#define LINALG_VERSION_PATCH 13
+#define LINALG_VERSION_PATCH 14
 
 #define LINALG_VERSION LINALG_STRINGIFY_VERSION(LINALG_VERSION_MAJOR, LINALG_VERSION_MINOR, LINALG_VERSION_PATCH)
 
@@ -1266,7 +1266,7 @@ public:
 
 	template<typename T2> vec4_t(const T2 *xyzw) : x(T(xyzw[0])), y(T(xyzw[1])), z(T(xyzw[2])), w(T(xyzw[3])) {}
 
-	template<typename T2, typename T3> vec4_t(const vec2_t<T2> &xy, const T3 &z = T3(0), const T3 &w = T3(0)) : x(T(xy.x)), y(T(xy.y)), z(T(zw.x)), w(T(zw.y)) {}
+	template<typename T2, typename T3> vec4_t(const vec2_t<T2> &xy, const T3 &z = T3(0), const T3 &w = T3(0)) : x(T(xy.x)), y(T(xy.y)), z(T(z)), w(T(w)) {}
 	template<typename T2, typename T3> vec4_t(const T2 &x, const T2 &y, const vec2_t<T3> &zw) : x(T(x)), y(T(y)), z(T(zw.x)), w(T(zw.y)) {}
 	template<typename T2, typename T3> vec4_t(const T2 &x, const vec2_t<T3> &yz, const T2 &w = T3(0)) : x(T(x)), y(T(yz.x)), z(T(yz.y)), w(T(w)) {}
 	template<typename T2, typename T3> vec4_t(const vec2_t<T2> &xy, const vec2_t<T3> &zw) : x(T(xy.x)), y(T(xy.y)), z(T(zw.x)), w(T(zw.y)) {}
@@ -2538,7 +2538,7 @@ public:
 
 	inline mat3 setScaling(const T sx, const T sy, const T sz = T(0))
 	{
-		return ((*this) = mat3::scaling(vec3(tx, ty, tz)));
+		return ((*this) = mat3::scaling(vec3(sx, sy, sz)));
 	}
 
 	inline vec3 getScaling() const
@@ -2809,8 +2809,8 @@ public:
 			return m;
 
 		m.translate(
-			(viewport.z - T(2) * (x - viewport.x)) / size.x,
-			(viewport.w - T(2) * (y - viewport.y)) / size.y,
+			(viewport.z - T(2) * (center.x - viewport.x)) / size.x,
+			(viewport.w - T(2) * (center.y - viewport.y)) / size.y,
 			T(0));
 
 		m.scale(
@@ -3544,7 +3544,7 @@ public:
 
 	inline mat4 setScaling(const T sx, const T sy, const T sz = T(0))
 	{
-		return ((*this) = mat4::scaling(vec3(tx, ty, tz)));
+		return ((*this) = mat4::scaling(vec3(sx, sy, sz)));
 	}
 
 	inline vec3 getScaling() const
