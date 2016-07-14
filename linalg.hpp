@@ -5,7 +5,7 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: July 10, 2016
+// Last Modified: July 14, 2016
 
 // Refrain from using any exposed macros, functions
 // or structs prefixed with an underscore. As these
@@ -27,7 +27,7 @@
 
 #define LINALG_VERSION_MAJOR 1
 #define LINALG_VERSION_MINOR 1
-#define LINALG_VERSION_PATCH 14
+#define LINALG_VERSION_PATCH 15
 
 #define LINALG_VERSION LINALG_STRINGIFY_VERSION(LINALG_VERSION_MAJOR, LINALG_VERSION_MINOR, LINALG_VERSION_PATCH)
 
@@ -2749,7 +2749,7 @@ public:
 		vec3 window;
 
 		window.x = (b.x * 0.5f + 0.5f) * viewport.z + viewport.x;
-		window.y = (1.0f - (b.y * 0.5f + 0.5f)) * viewport.w + viewport.y;
+		window.y = (b.y * 0.5f + 0.5f) * viewport.w + viewport.y;
 
 		// This is only correct when glDepthRangef(0.0f, 1.0f)
 		window.z = (1.0f + b.z) * 0.5f;
@@ -2770,7 +2770,7 @@ public:
 		vec4 in = vec4(window, 1.0f);
 
 		in.x = (in.x - static_cast<float>(viewport.x)) / static_cast<float>(viewport.z);
-		in.y = 1.0f - (in.y - static_cast<float>(viewport.y)) / static_cast<float>(viewport.w);
+		in.y = (in.y - static_cast<float>(viewport.y)) / static_cast<float>(viewport.w);
 
 		in = in * 2.0f - 1.0f;
 		in.w = 1.0f;

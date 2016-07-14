@@ -54,7 +54,7 @@ as various `#pragma region`'s are scattered in [LinearAlgebra][LinearAlgebra]'s 
 it was rewritten for C++ and Python, where the C++ version now is the main version.*
 
 
-### License
+## License
 
 This module is shared under the MIT license, and is therefore free to use, share, distribute and modify.
 See [LICENSE][LinearAlgebraLicense] for more details.
@@ -66,7 +66,7 @@ See [LICENSE][LinearAlgebraLicense] for more details.
 [LinearAlgebraBuildStatus]: https://drone.io/github.com/MrVallentin/LinearAlgebra/status.png
 [LinearAlgebraCI]: https://drone.io/github.com/MrVallentin/LinearAlgebra/latest
 
-[LinearAlgebraVersionBadge]: https://img.shields.io/badge/release-v1.1.14-blue.svg
+[LinearAlgebraVersionBadge]: https://img.shields.io/badge/release-v1.1.15-blue.svg
 [LinearAlgebraLicenseBadge]: https://img.shields.io/badge/license-%20free%20to%20use%2C%20share%2C%20modify%20and%20redistribute-blue.svg
 
 [LinearAlgebraIssueTracker]: https://github.com/MrVallentin/LinearAlgebra/issues
