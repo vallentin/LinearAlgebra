@@ -5,7 +5,7 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: July 14, 2016
+// Last Modified: July 15, 2016
 
 // Refrain from using any exposed macros, functions
 // or structs prefixed with an underscore. As these
@@ -27,7 +27,7 @@
 
 #define LINALG_VERSION_MAJOR 1
 #define LINALG_VERSION_MINOR 1
-#define LINALG_VERSION_PATCH 15
+#define LINALG_VERSION_PATCH 16
 
 #define LINALG_VERSION LINALG_STRINGIFY_VERSION(LINALG_VERSION_MAJOR, LINALG_VERSION_MINOR, LINALG_VERSION_PATCH)
 
@@ -2819,6 +2819,31 @@ public:
 			T(1));
 
 		return m;
+	}
+
+
+	static void anglesToAxes(const vec3 &angles, vec3 &left, vec3 &up, vec3 &forward)
+	{
+		const T sx = sinf(angles.x);
+		const T cx = cosf(angles.x);
+
+		const T sy = sinf(angles.y);
+		const T cy = cosf(angles.y);
+
+		const T sz = sinf(angles.z);
+		const T cz = cosf(angles.z);
+
+		left.x = cy * cz;
+		left.y = sx * sy * cz + cx * sz;
+		left.z = -cx * sy * cz + sx * sz;
+
+		up.x = -cy * sz;
+		up.y = -sx * sy * sz + cx * cz;
+		up.z = cx * sy * sz + sx * cz;
+
+		forward.x = sy;
+		forward.y = -sx * cy;
+		forward.z = cx * cy;
 	}
 
 
