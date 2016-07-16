@@ -5,7 +5,7 @@
 // License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
-// Last Modified: July 15, 2016
+// Last Modified: July 16, 2016
 
 // Refrain from using any exposed macros, functions
 // or structs prefixed with an underscore. As these
@@ -27,7 +27,7 @@
 
 #define LINALG_VERSION_MAJOR 1
 #define LINALG_VERSION_MINOR 1
-#define LINALG_VERSION_PATCH 16
+#define LINALG_VERSION_PATCH 17
 
 #define LINALG_VERSION LINALG_STRINGIFY_VERSION(LINALG_VERSION_MAJOR, LINALG_VERSION_MINOR, LINALG_VERSION_PATCH)
 
@@ -2547,6 +2547,43 @@ public:
 	}
 
 
+	// TODO: Gives incorrect results if angle is 0 or 180
+
+	inline T getAngle() const
+	{
+		return acos(((*this)(0, 0) + (*this)(1, 1) + (*this)(2, 2) - T(1)) / T(2));
+	}
+
+	inline T getAngleDegrees() const
+	{
+		return getAngle() * T(LINALG_RAD2DEG);
+	}
+
+	vec3 getAxis() const
+	{
+		const T m01 = (*this)[0][1];
+		const T m02 = (*this)[0][2];
+
+		const T m10 = (*this)[1][0];
+		const T m20 = (*this)[2][0];
+
+		const T m12 = (*this)[1][2];
+		const T m21 = (*this)[2][1];
+
+		const T sq = sqrtf(
+			(m21 - m12) * (m21 - m12) +
+			(m02 - m20) * (m02 - m20) +
+			(m10 - m01) * (m10 - m01)
+		);
+
+		return vec3(
+			(m21 - m12) / sq,
+			(m02 - m20) / sq,
+			(m10 - m01) / sq
+		);
+	}
+
+
 	inline void swap(mat3 &other)
 	{
 		const mat3 tmp(*this);
@@ -3578,6 +3615,43 @@ public:
 	}
 
 
+	// TODO: Gives incorrect results if angle is 0 or 180
+
+	inline T getAngle() const
+	{
+		return acos(((*this)(0, 0) + (*this)(1, 1) + (*this)(2, 2) - T(1)) / T(2));
+	}
+
+	inline T getAngleDegrees() const
+	{
+		return getAngle() * T(LINALG_RAD2DEG);
+	}
+
+	vec3 getAxis() const
+	{
+		const T m01 = (*this)[0][1];
+		const T m02 = (*this)[0][2];
+
+		const T m10 = (*this)[1][0];
+		const T m20 = (*this)[2][0];
+
+		const T m12 = (*this)[1][2];
+		const T m21 = (*this)[2][1];
+
+		const T sq = sqrtf(
+			(m21 - m12) * (m21 - m12) +
+			(m02 - m20) * (m02 - m20) +
+			(m10 - m01) * (m10 - m01)
+		);
+
+		return vec3(
+			(m21 - m12) / sq,
+			(m02 - m20) / sq,
+			(m10 - m01) / sq
+		);
+	}
+
+
 	inline void swap(mat4 &other)
 	{
 		const mat4 tmp(*this);
@@ -3843,7 +3917,7 @@ public:
 
 	// Normalize then conjugate the current quaternion,
 	// to get the inverse quaternion.
-	quat inverse() const
+	inline quat inverse() const
 	{
 		return normalize().conjugate();
 	}
@@ -3910,12 +3984,12 @@ public:
 	friend inline quat slerp(const quat &from, const quat &to, const T t) { return from.lerp(to, t); }
 
 
-	T getAngle() const
+	inline T getAngle() const
 	{
 		return T(2) * acos(this->w);
 	}
 
-	T getAngleDegrees() const
+	inline T getAngleDegrees() const
 	{
 		return getAngle() * T(LINALG_RAD2DEG);
 	}
@@ -3927,8 +4001,8 @@ public:
 		if (LINALG_FEQUAL(squared, 0.0f))
 			return vec3(T(1), T(0), T(0));
 
-		const float length = sqrt(squared);
-		const float invLength = 1.0f / length;
+		const T length = sqrt(squared);
+		const T invLength = T(1) / length;
 
 		return vec3(this->x * invLength, this->y * invLength, this->z * invLength);
 	}
