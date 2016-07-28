@@ -4,14 +4,14 @@
 [LinearAlgebra][LinearAlgebra] is a linear algebra library, which consists of:
 
 - Vectors
- - Vector 2D (`vec2`)
- - Vector 3D (`vec3`)
- - Vector 4D (`vec4`)
+  - Vector 2D (`vec2`)
+  - Vector 3D (`vec3`)
+  - Vector 4D (`vec4`)
 
 - Matrices
- - Matrix 2D (`mat2`, `mat2x2`)
- - Matrix 3D (`mat3`, `mat3x3`)
- - Matrix 4D (`mat4`, `mat4x4`)
+  - Matrix 2D (`mat2`, `mat2x2`)
+  - Matrix 3D (`mat3`, `mat3x3`)
+  - Matrix 4D (`mat4`, `mat4x4`)
 
 - Quaternion (`quat`)
 - ~~Dual Quaternion (`dualquat`)~~
@@ -20,9 +20,9 @@
 Since [LinearAlgebra][LinearAlgebra] was built for use with computer graphics, it contains
 a few helper classes for especially that:
 
-- Transform
-- Project
-- MatrixStack
+- ~~Transform~~
+- ~~Project~~ (Functionality stored in `mat4`)
+- ~~MatrixStack~~
 
 
 Various methods are implemented such that they can be called by your liking:
@@ -52,6 +52,53 @@ as various `#pragma region`'s are scattered in [LinearAlgebra][LinearAlgebra]'s 
 
 *[LinearAlgebra][LinearAlgebra] was first created in 2013 for use with OpenGL in Java. Later
 it was rewritten for C++ and Python, where the C++ version now is the main version.*
+
+
+### Mouse to Ray
+
+```cpp
+vec2 mousePos = ...;
+
+ivec4 viewport = ivec4(0, 0, viewportWidth, viewportHeight);
+
+mat4 view = ...;
+mat4 projection = ...;
+
+vec3 rayStart = mat4::unproject(vec3(mousePos, 0.0f), view, projection, viewport);
+vec3 rayEnd   = mat4::unproject(vec3(mousePos, 1.0f), view, projection, viewport);
+vec3 rayDirection = normalize(rayEnd - rayStart);
+```
+
+
+### std::cout & std::cin
+
+To add friend functions for stream purposes,
+simply make sure to have the `iostream` header
+included prior to including `linalg`.
+
+```cpp
+#include <iostream>
+#include "linalg.hpp"
+```
+
+This now allows printing and reading `vec`, `mat` and `quat`.
+
+```cpp
+std::cout << vec4(1.0f, 2.0f, 3.0f, 4.0f) << std::endl;
+
+// Prints:
+// vec4(1.0, 2.0, 3.0, 4.0)
+
+std::cout << mat3(
+	1.0f, 2.0f, 3.0f,
+	4.0f, 5.0f, 6.0f,
+	7.0f, 8.0f, 9.0f) << std::endl;
+
+// Prints:
+// mat3(1.0, 2.0, 3.0
+//      4.0, 5.0, 6.0,
+//      7.0, 8.0, 9.0)
+```
 
 
 ## License
