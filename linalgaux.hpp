@@ -1,8 +1,8 @@
 
-// Author: Christian Vallentin <mail@vallentinsource.com>
-// Website: http://vallentinsource.com
-// Repository: https://github.com/MrVallentin/LinearAlgebra
-// License: https://github.com/MrVallentin/LinearAlgebra/blob/master/LICENSE
+// Author: Christian Vallentin <vallentin.source@gmail.com>
+// Website: https://vallentin.dev
+// Repository: https://github.com/vallentin/LinearAlgebra
+// License: https://github.com/vallentin/LinearAlgebra/blob/master/LICENSE
 //
 // Date Created: October 01, 2013
 // Last Modified: June 27, 2016

@@ -1,12 +1,12 @@
 
-// Author: Christian Vallentin <mail@vallentinsource.com>
-// Website: http://vallentinsource.com
-// Repository: https://github.com/MrVallentin/LinearAlgebra
+// Author: Christian Vallentin <vallentin.source@gmail.com>
+// Website: https://vallentin.dev
+// Repository: https://github.com/vallentin/LinearAlgebra
 //
 // Date Created: October 01, 2013
 // Last Modified: July 16, 2016
 
-// Copyright (c) 2013-2016 Christian Vallentin <mail@vallentinsource.com>
+// Copyright (c) 2013-2016 Christian Vallentin <vallentin.source@gmail.com>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -541,7 +541,7 @@ public:
 
 
 	// Calculates the projection of a onto b
-	// 
+	//
 	// Reference: http://en.wikipedia.org/wiki/Vector_projection#Vector_projection_2
 	inline vec2 project(const vec2 &b) const
 	{
@@ -959,7 +959,7 @@ public:
 			static_cast<T2>(this->z)
 		);
 	}
-	
+
 #pragma endregion
 
 #pragma region Stream Operators
@@ -1071,7 +1071,7 @@ public:
 
 
 	// Calculates the projection of a onto b
-	// 
+	//
 	// Reference: http://en.wikipedia.org/wiki/Vector_projection#Vector_projection_2
 	inline vec3 project(const vec3 &b) const
 	{
@@ -1462,7 +1462,7 @@ public:
 			static_cast<T2>(this->w)
 		);
 	}
-	
+
 #pragma endregion
 
 #pragma region Stream Operators
@@ -1920,7 +1920,7 @@ public:
 #pragma endregion
 
 #pragma region Comparison Operators
-	
+
 	bool operator==(const mat2 &rhs) const;
 
 	inline bool operator!=(const mat2 &rhs) const { return !((*this) == rhs); }
